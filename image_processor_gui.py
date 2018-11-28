@@ -21,16 +21,18 @@ class App(QWidget):
         button = QPushButton('PyQT5 button', self)
         button.setToolTip('this is an example button')
         button.move(100,70)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.file_select_button)
 
-        self.openFileNameDialog()
+        #self.openFileNameDialog()
+
         #self.openFileNamesDialog()
         #self.saveFileDialog()
 
         self.show()
 
     @pyqtSlot()
-    def on_click(self):
+    def file_select_button(self):
+        self.openFileNameDialog()
         print('PyQt5 button click')
 
     def openFileNameDialog(self):
