@@ -1,6 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QInputDialog, QLineEdit, QFileDialog
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot
 
 
 class App(QWidget):
@@ -17,11 +18,20 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         
+        button = QPushButton('PyQT5 button', self)
+        button.setToolTip('this is an example button')
+        button.move(100,70)
+        button.clicked.connect(self.on_click)
+
         self.openFileNameDialog()
         #self.openFileNamesDialog()
         #self.saveFileDialog()
 
         self.show()
+
+    @pyqtSlot()
+    def on_click(self):
+        print('PyQt5 button click')
 
     def openFileNameDialog(self):
         options = QFileDialog.Options()
