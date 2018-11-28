@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QInputDialog, QComboBox
-from PyQt5.QtWidgets import QLineEdit, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QInputDialog
+from PyQt5.QtWidgets import QLineEdit, QFileDialog, QComboBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
@@ -15,7 +15,6 @@ class App(QWidget):
         self.height = 480
         self.initUI()
 
-
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -26,7 +25,8 @@ class App(QWidget):
         button.clicked.connect(self.file_select_button)
 
         box = QComboBox(self)
-        box.addItems(["Histogram Equalization", "Contrast Stretching", "Log Compression", "Reverse Video"])
+        box.addItems(["Histogram Equalization", "Contrast Stretching",
+                      "Log Compression", "Reverse Video"])
         box.move(0, 30)
 
         self.show()
