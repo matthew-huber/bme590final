@@ -1,2 +1,9 @@
 scipy
 scikit-image
+pytest
+pytest-cov
+pytest-pep8
+pyqt5
+flask
+pymodm
+requests
