@@ -1,8 +1,10 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QInputDialog
-from PyQt5.QtWidgets import QLineEdit, QFileDialog, QComboBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtWidgets import QFileDialog, QComboBox, QLabel
 from PyQt5.QtCore import pyqtSlot
+from PyQt5 import QtGui, QtCore
+from matplotlib.pyplot import imread
+
+import sys
 
 
 class App(QWidget):
@@ -39,9 +41,32 @@ class App(QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
+                                             "JPEG (*.JPEG *.jpeg *.JPG "
+                                             "*.jpg *.JPE *.jpe "
+                                             "*JFIF *.jfif);; "
+                                             "PNG (*.PNG *.png);; "
+                                             "GIF (*.GIF *.gif);; "
+                                             "Bitmap Files (*.BMP *.bmp"
+                                             " *.DIB *.dib);;"
+                                             " TIFF (*.TIF *.tif *.TIFF "
+                                             "*.tiff);; ICO (*.ICO *.ico)",
                                              options=options)
         if fn:
-            print(fn)
+            input_image = imread(fn[0])
+            height, width, channels = input_image.shape
+            bytesPerLine = channels * width
+            qImg = QtGui.QImage(input_image.data, width, height,
+                                bytesPerLine, QtGui.QImage.Format_RGB888)
+            pixmap01 = QtGui.QPixmap.fromImage(qImg)
+            pixmap_image = QtGui.QPixmap(pixmap01)
+            pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+            label_imageDisplay = QLabel(self)
+            label_imageDisplay.setPixmap(pixmap_image_scaled)
+            label_imageDisplay.setAlignment(QtCore.Qt.AlignCenter)
+            label_imageDisplay.setScaledContents(True)
+            label_imageDisplay.setMinimumSize(1, 1)
+            label_imageDisplay.move(100, 100)
+            label_imageDisplay.show()
 
 
 if __name__ == '__main__':
