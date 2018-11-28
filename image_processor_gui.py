@@ -1,5 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QInputDialog, QLineEdit, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QInputDialog
+from PyQt5.QtWidgets import QLineEdit, QFileDialog
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
@@ -7,7 +8,7 @@ from PyQt5.QtCore import pyqtSlot
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.title = 'PyQT5 Simple Window'
+        self.title = 'Image Processor Control'
         self.left = 10
         self.top = 10
         self.width = 640
@@ -17,31 +18,25 @@ class App(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        
-        button = QPushButton('PyQT5 button', self)
-        button.setToolTip('this is an example button')
-        button.move(100,70)
+
+        button = QPushButton('Open image', self)
+        button.setToolTip('Choose image file(s) to process')
+        button.move(0, 0)
         button.clicked.connect(self.file_select_button)
-
-        #self.openFileNameDialog()
-
-        #self.openFileNamesDialog()
-        #self.saveFileDialog()
 
         self.show()
 
     @pyqtSlot()
     def file_select_button(self):
-        self.openFileNameDialog()
-        print('PyQt5 button click')
+        self.openFileNamesDialog()
 
-    def openFileNameDialog(self):
+    def openFileNamesDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "", "All File (*);;Python File(*.py)", options=options)
-        if fileName:
-            print(fileName)
-
+        fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
+                                             options=options)
+        if fn:
+            print(fn)
 
 
 if __name__ == '__main__':
