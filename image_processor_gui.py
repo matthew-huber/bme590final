@@ -12,19 +12,20 @@ class App(QTabWidget):
         super(App, self).__init__(parent)
         self.tab1 = QWidget()
         self.tab2 = QWidget()
+        self.orig_image = QLabel("Original Image")
+        self.proc_image = QLabel("Processed Image")
 
-        self.addTab(self.tab1, "Tab 1")
-        self.addTab(self.tab2, "Tab 2")
+        self.addTab(self.tab1, "Specify User")
+        self.addTab(self.tab2, "Process Image")
         self.tab1UI()
         self.tab2UI()
 
-        self.title = 'Image Processor Control'
-        self.left = 10
-        self.top = 10
+        self.left = 100
+        self.top = 100
         self.width = 640
         self.height = 480
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.setWindowTitle(self.title)
+        self.setWindowTitle('Image Processor Control')
 
     def tab1UI(self):
         layout = QFormLayout()
@@ -34,30 +35,32 @@ class App(QTabWidget):
         button.setToolTip("Enter username")
         enter_button.addWidget(button)
         layout.addRow(enter_button)
-        self.setTabText(0, "Specify User")
         self.tab1.setLayout(layout)
 
     def tab2UI(self):
 
-        layout = QGridLayout()
+        tab2layout = QGridLayout()
 
         open_button = QPushButton('Open image', self)
         open_button.setToolTip('Choose image file(s) to process')
         open_button.clicked.connect(self.file_select_button)
-        layout.addWidget(open_button, 1, 0)
+        tab2layout.addWidget(open_button, 1, 0)
 
         global box
         box = QComboBox(self)
         box.addItems(["Histogram Equalization", "Contrast Stretching",
                       "Log Compression", "Reverse Video"])
-        layout.addWidget(box, 2, 0)
+        tab2layout.addWidget(box, 2, 0)
 
         processor_button = QPushButton('Process', self)
         processor_button.setToolTip('Hit Button to Send Image to Server for Processing')
         processor_button.clicked.connect(self.process_button)
-        layout.addWidget(processor_button, 3, 0)
-        self.tab2.setLayout(layout)
-        self.setTabText(1, "Process Image")
+        tab2layout.addWidget(processor_button, 3, 0)
+
+        tab2layout.addWidget(self.orig_image, 4, 0, 2, 2)
+        tab2layout.addWidget(self.proc_image, 4, 2, 2, 2)
+
+        self.tab2.setLayout(tab2layout)
 
     @pyqtSlot()
     def file_select_button(self):
@@ -80,21 +83,24 @@ class App(QTabWidget):
                                              options=options)
 
         if fn:
-            input_image = imread(fn[0])
-            height, width, channels = input_image.shape
-            bytesPerLine = channels * width
-            qImg = QtGui.QImage(input_image.data, width, height,
-                                bytesPerLine, QtGui.QImage.Format_RGB888)
-            pixmap01 = QtGui.QPixmap.fromImage(qImg)
-            pixmap_image = QtGui.QPixmap(pixmap01)
-            pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-            label_imageDisplay = QLabel(self)
-            label_imageDisplay.setPixmap(pixmap_image_scaled)
-            label_imageDisplay.setAlignment(QtCore.Qt.AlignCenter)
-            label_imageDisplay.setScaledContents(True)
-            label_imageDisplay.setMinimumSize(1, 1)
-            label_imageDisplay.move(150, 100)
-            label_imageDisplay.show()
+            self.insert_orig_image(fn)
+
+    def insert_orig_image(self, fn):
+        input_image = imread(fn[0])
+        height, width, channels = input_image.shape
+        bytesPerLine = channels * width
+        qImg = QtGui.QImage(input_image.data, width, height,
+                            bytesPerLine, QtGui.QImage.Format_RGB888)
+        pixmap01 = QtGui.QPixmap.fromImage(qImg)
+        pixmap_image = QtGui.QPixmap(pixmap01)
+        pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+        label_imageDisplay = self.orig_image
+        label_imageDisplay.setPixmap(pixmap_image_scaled)
+        label_imageDisplay.setAlignment(QtCore.Qt.AlignCenter)
+        label_imageDisplay.setScaledContents(True)
+        label_imageDisplay.setMinimumSize(1, 1)
+        label_imageDisplay.move(150, 100)
+        label_imageDisplay.show()
 
     def process_button(self):
         self.process_server()
