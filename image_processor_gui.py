@@ -83,12 +83,12 @@ class App(QWidget):
 
     def process_server(self):
         images_base64 = []
-        process = box.currentData()
+        process = box.currentText()
         for x in range(len(fn)):
             input_image = imread(fn[x])
-            image_base64 = str(base64.b64encode(input_image))
-            print(image_base64)
-            images_base64.append(image_base64)
+            image_base64 = base64.b64encode(input_image)
+            base64_string = image_base64.decode('ascii')
+            images_base64.append(base64_string)
         r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
