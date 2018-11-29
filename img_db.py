@@ -1,7 +1,7 @@
 from pymodm import connect
 from pymodm import MongoModel, fields
 
-connect("mongodb://<dbuser>:<dbpassword>@ds121624.mlab.com:21624/bme590final")
+connect("mongodb://bme_user:GODUKE10@ds121624.mlab.com:21624/bme590final")
 
 
 class DB_Image_Meta(MongoModel):
@@ -18,4 +18,3 @@ class DB_Image_Meta(MongoModel):
     user = fields.CharField()
     processing_times = fields.ListField(field=fields.FloatField())
     processing_types = fields.ListField(field=fields.CharField())
-
