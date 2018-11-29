@@ -6,6 +6,7 @@ from matplotlib.pyplot import imread
 import base64
 import sys
 import requests
+from datetime import datetime
 
 
 class App(QWidget):
@@ -49,6 +50,8 @@ class App(QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         global fn
+        global timestamps
+        timestamps = []
         fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
                                              "JPEG (*.JPEG *.jpeg *.JPG "
                                              "*.jpg *.JPE *.jpe "
@@ -62,6 +65,7 @@ class App(QWidget):
                                              options=options)
 
         if fn:
+            timestamps.append(str(datetime.now))
             input_image = imread(fn[0])
             height, width, channels = input_image.shape
             bytesPerLine = channels * width
@@ -83,15 +87,25 @@ class App(QWidget):
 
     def process_server(self):
         images_base64 = []
+        height_images = []
+        width_images = []
         process = box.currentText()
         for x in range(len(fn)):
             input_image = imread(fn[x])
+            height, width, channels = input_image.shape
+            height_images.append(height)
+            width_images.append(width)
             image_base64 = base64.b64encode(input_image)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
+        print(width_images)
+        print(height_images)
         r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
+            "Timestamps": timestamps,
+            "OG Height": height_images,
+            "OG Width": width_images,
         })
         print(r2.text)
 
