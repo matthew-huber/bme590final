@@ -67,6 +67,7 @@ class App(QWidget):
         if fn:
             timestamps.append(str(datetime.now))
             input_image = imread(fn[0])
+            print(type(input_image))
             height, width, channels = input_image.shape
             bytesPerLine = channels * width
             qImg = QtGui.QImage(input_image.data, width, height,
@@ -87,25 +88,17 @@ class App(QWidget):
 
     def process_server(self):
         images_base64 = []
-        height_images = []
-        width_images = []
         process = box.currentText()
         for x in range(len(fn)):
-            input_image = imread(fn[x])
-            height, width, channels = input_image.shape
-            height_images.append(height)
-            width_images.append(width)
-            image_base64 = base64.b64encode(input_image)
+            with open(fn[x], "rb") as image_file:
+                image_bytes = image_file.read()
+            image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
-        print(width_images)
-        print(height_images)
         r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
             "Timestamps": timestamps,
-            "OG Height": height_images,
-            "OG Width": width_images,
         })
         print(r2.text)
 
