@@ -76,10 +76,12 @@ class ImageProcessor:
     def histogram(self, img):
         """Generates a list of histograms with intensity values for each
         channel in the image.
+
         Each item in the list consists of a 2D numpy array, in which the
         first dimension is the histogram itself, and the second dimension
         is the bin values. A histogram item from this list could be plotted
         as plt.plot(histogram_item[1], histogram_item[0])
+
         :param img: input image
         :return: hist (list): List of histograms for each color channel
         """
