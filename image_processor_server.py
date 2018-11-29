@@ -27,6 +27,27 @@ def gui_server():
             processed_image_base64 = base64.b64encode(processed_image)
             base64_string = processed_image_base64.decode('ascii')
             processed_images.append(base64_string)
+    elif s2 == "Contrast Stretching":
+        for x in range(len(s1)):
+            nparr = np.frombuffer(base64.b64decode(s1[x]), np.uint8)
+            processed_image = pro.contrastStretch(nparr)
+            processed_image_base64 = base64.b64encode(processed_image)
+            base64_string = processed_image_base64.decode('ascii')
+            processed_images.append(base64_string)
+    elif s2 == "Log Compression":
+        for x in range(len(s1)):
+            nparr = np.frombuffer(base64.b64decode(s1[x]), np.uint8)
+            processed_image = pro.logCompression(nparr)
+            processed_image_base64 = base64.b64encode(processed_image)
+            base64_string = processed_image_base64.decode('ascii')
+            processed_images.append(base64_string)
+    elif s2 == "Reverse Video":
+        for x in range(len(s1)):
+            nparr = np.frombuffer(base64.b64decode(s1[x]), np.uint8)
+            processed_image = pro.reverseVideo(nparr)
+            processed_image_base64 = base64.b64encode(processed_image)
+            base64_string = processed_image_base64.decode('ascii')
+            processed_images.append(base64_string)
     return "woo"
 
 if __name__ == "__main__":
