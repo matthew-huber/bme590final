@@ -14,8 +14,8 @@ class App(QTabWidget):
         self.username = ""
         self.tab1 = QWidget()
         self.tab2 = QWidget()
-        self.orig_image = QLabel("Original Image")
-        self.proc_image = QLabel("Processed Image")
+        self.orig_image = QLabel("")
+        self.proc_image = QLabel("")
 
         self.entered_username = QLineEdit()
 
@@ -63,8 +63,19 @@ class App(QTabWidget):
         processor_button.clicked.connect(self.process_button)
         tab2layout.addWidget(processor_button, 3, 0)
 
-        tab2layout.addWidget(self.orig_image, 4, 0, 2, 2)
-        tab2layout.addWidget(self.proc_image, 4, 2, 2, 2)
+        orig_image_box = QGroupBox("Original Image")
+        orig_image_layout = QHBoxLayout()
+        orig_image_layout.addWidget(self.orig_image)
+        orig_image_box.setLayout(orig_image_layout)
+        tab2layout.addWidget(orig_image_box, 4, 0, 2, 2)
+
+        proc_image_box = QGroupBox("Processed Image")
+        proc_image_layout = QHBoxLayout()
+        proc_image_layout.addWidget(self.proc_image)
+        proc_image_box.setLayout(proc_image_layout)
+
+
+        tab2layout.addWidget(proc_image_box, 4, 2, 2, 2)
 
         self.tab2.setLayout(tab2layout)
 
@@ -92,7 +103,6 @@ class App(QTabWidget):
                                              " TIFF (*.TIF *.tif *.TIFF "
                                              "*.tiff);; ICO (*.ICO *.ico)",
                                              options=options)
-
         if fn:
             self.insert_orig_image(fn)
 
@@ -105,13 +115,11 @@ class App(QTabWidget):
         pixmap01 = QtGui.QPixmap.fromImage(qImg)
         pixmap_image = QtGui.QPixmap(pixmap01)
         pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-        label_imageDisplay = self.orig_image
-        label_imageDisplay.setPixmap(pixmap_image_scaled)
-        label_imageDisplay.setAlignment(QtCore.Qt.AlignCenter)
-        label_imageDisplay.setScaledContents(True)
-        label_imageDisplay.setMinimumSize(1, 1)
-        label_imageDisplay.move(150, 100)
-        label_imageDisplay.show()
+        self.orig_image.setPixmap(pixmap_image_scaled)
+        self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
+        self.orig_image.setScaledContents(True)
+        self.orig_image.setMinimumSize(1, 1)
+        self.orig_image.show()
 
     def process_button(self):
         self.process_server()
