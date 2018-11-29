@@ -13,7 +13,6 @@ class ImageProcessor:
 
     def histogramEqualization(self, img):
         """Applies histogram equalization to input image
-
         :param img: Image be processed
         :return: hist_eql_img: img after histogram equalization
         """
@@ -22,7 +21,6 @@ class ImageProcessor:
 
     def contrastStretch(self, img):
         """Applies contrast stretching to input image
-
         :param img: Image to be processed
         :return: cont_stretch_img: img after contrast stretching
         """
@@ -31,7 +29,6 @@ class ImageProcessor:
 
     def logCompression(self, img):
         """Applies logarithmic compression to input image
-
         :param img: Image to be processed
         :return: log_comp_img: img after logarithmic compression
         """
@@ -48,13 +45,11 @@ class ImageProcessor:
 
     def isGrayscale(self, img):
         """Checks to see if an image is grayscale
-
         isGrayscale determines if an images is grayscale by assuming a
         grayscale image will have one of the following properties
         1. Only have two dimensions
         2. If it has 3D (indicating RGB pixel color values), R=B=G for all
         pixels.
-
         :param img: Input image
         :return: is_grayscale: Indicates whether the input image is grayscale
         """
