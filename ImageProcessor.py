@@ -43,7 +43,8 @@ class ImageProcessor:
         if not is_gs:
             raise ValueError
 
-        gs_inverted = np.invert(is_gs)
+        gs_inverted = np.invert(img)
+        return gs_inverted
 
     def isGrayscale(self, img):
         """Checks to see if an image is grayscale
