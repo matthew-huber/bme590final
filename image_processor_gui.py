@@ -10,13 +10,18 @@ import requests
 class App(QTabWidget):
     def __init__(self, parent=None):
         super(App, self).__init__(parent)
+
+        self.username = ""
         self.tab1 = QWidget()
         self.tab2 = QWidget()
         self.orig_image = QLabel("Original Image")
         self.proc_image = QLabel("Processed Image")
 
+        self.entered_username = QLineEdit()
+
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
+        self.setTabEnabled(1, False)
         self.tab1UI()
         self.tab2UI()
 
@@ -29,11 +34,12 @@ class App(QTabWidget):
 
     def tab1UI(self):
         layout = QFormLayout()
-        layout.addRow("Username", QLineEdit())
+        layout.addRow("Username", self.entered_username)
         enter_button = QHBoxLayout()
-        button = QPushButton("Enter")
-        button.setToolTip("Enter username")
-        enter_button.addWidget(button)
+        user_button = QPushButton("Enter")
+        user_button.setToolTip("Enter username")
+        user_button.clicked.connect(self.update_username)
+        enter_button.addWidget(user_button)
         layout.addRow(enter_button)
         self.tab1.setLayout(layout)
 
@@ -65,6 +71,11 @@ class App(QTabWidget):
     @pyqtSlot()
     def file_select_button(self):
         self.openFileNamesDialog()
+
+    def update_username(self):
+        self.username = self.entered_username.text
+        self.setTabEnabled(1, True)
+        self.setCurrentIndex(1)
 
     def openFileNamesDialog(self):
         options = QFileDialog.Options()
