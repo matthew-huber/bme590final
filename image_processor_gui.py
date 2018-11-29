@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtWidgets import QFileDialog, QComboBox, QLabel
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtGui, QtCore
 from matplotlib.pyplot import imread
@@ -8,38 +7,57 @@ import sys
 import requests
 
 
-class App(QWidget):
+class App(QTabWidget):
+    def __init__(self, parent=None):
+        super(App, self).__init__(parent)
+        self.tab1 = QWidget()
+        self.tab2 = QWidget()
 
-    def __init__(self):
-        super().__init__()
+        self.addTab(self.tab1, "Tab 1")
+        self.addTab(self.tab2, "Tab 2")
+        self.tab1UI()
+        self.tab2UI()
+
         self.title = 'Image Processor Control'
         self.left = 10
         self.top = 10
         self.width = 640
         self.height = 480
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setWindowTitle(self.title)
 
-        button = QPushButton('Open image', self)
-        button.setToolTip('Choose image file(s) to process')
-        button.move(0, 0)
-        button.clicked.connect(self.file_select_button)
+    def tab1UI(self):
+        layout = QFormLayout()
+        layout.addRow("Username", QLineEdit())
+        enter_button = QHBoxLayout()
+        button = QPushButton("Enter")
+        button.setToolTip("Enter username")
+        enter_button.addWidget(button)
+        layout.addRow(enter_button)
+        self.setTabText(0, "Specify User")
+        self.tab1.setLayout(layout)
+
+    def tab2UI(self):
+
+        layout = QGridLayout()
+
+        open_button = QPushButton('Open image', self)
+        open_button.setToolTip('Choose image file(s) to process')
+        open_button.clicked.connect(self.file_select_button)
+        layout.addWidget(open_button, 1, 0)
 
         global box
         box = QComboBox(self)
         box.addItems(["Histogram Equalization", "Contrast Stretching",
                       "Log Compression", "Reverse Video"])
-        box.move(0, 30)
+        layout.addWidget(box, 2, 0)
 
-        button = QPushButton('Process', self)
-        button.setToolTip('Hit Button to Send Image to Server for Processing')
-        button.move(540, 440)
-        button.clicked.connect(self.process_button)
-
-        self.show()
+        processor_button = QPushButton('Process', self)
+        processor_button.setToolTip('Hit Button to Send Image to Server for Processing')
+        processor_button.clicked.connect(self.process_button)
+        layout.addWidget(processor_button, 3, 0)
+        self.tab2.setLayout(layout)
+        self.setTabText(1, "Process Image")
 
     @pyqtSlot()
     def file_select_button(self):
@@ -96,7 +114,11 @@ class App(QWidget):
         print(r2.text)
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
     ex = App()
+    ex.show()
     sys.exit(app.exec())
+
+if __name__ == '__main__':
+    main()
