@@ -31,10 +31,13 @@ def gui_server():
     global s2
     global s3
     global fn
+    global username
     s1 = r.get("Images")
     s2 = r.get("Process")
     s3 = r.get("Timestamps")
     fn = r.get("FileNames")
+    username = r.get("User")
+
     check = data_validation(r)
     if check:
         pro = ImageProcessor()
@@ -141,7 +144,7 @@ def addImagesToDatabase():
     """
     for x in range(len(s1)):
         file_path = fn[x]
-        user = "Placeholder"
+        user = username
         processing_time = time1[x]
         processing_type = s2
         original_height = OG_height[x]
