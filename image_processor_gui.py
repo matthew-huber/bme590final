@@ -23,7 +23,6 @@ class App(QTabWidget):
         self.download_box = QComboBox(self)
         self.orig_next_button = QPushButton('Next Image >>')
 
-
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
         self.setTabEnabled(1, False)
@@ -107,6 +106,9 @@ class App(QTabWidget):
     def orig_next_image(self):
         """next image
         """
+        first_image = fn.pop(0)
+        fn.append(first_image)
+        self.insert_orig_image(fn)
 
     def update_username(self):
         self.username = self.entered_username.text()
@@ -136,6 +138,12 @@ class App(QTabWidget):
                                              "*.tiff);; ICO (*.ICO *.ico)",
                                              options=options)
         if fn:
+            if len(fn) > 1:
+                self.orig_next_button.setEnabled(True)
+                self.orig_next_button.setToolTip('View next image')
+            else:
+                self.orig_next_button.setEnabled(False)
+                self.orig_next_button.setToolTip('No next image to view')
             self.insert_orig_image(fn)
 
     def insert_orig_image(self, fn):
