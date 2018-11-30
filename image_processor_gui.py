@@ -5,6 +5,7 @@ from matplotlib.pyplot import imread
 import base64
 import sys
 import requests
+from datetime import datetime
 
 
 class App(QTabWidget):
@@ -110,6 +111,8 @@ class App(QTabWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         global fn
+        global timestamps
+        timestamps = []
         fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
                                              "JPEG (*.JPEG *.jpeg *.JPG "
                                              "*.jpg *.JPE *.jpe "
@@ -123,21 +126,33 @@ class App(QTabWidget):
                                              options=options)
         if fn:
             self.insert_orig_image(fn)
-
+  
     def insert_orig_image(self, fn):
-        input_image = imread(fn[0])
-        height, width, channels = input_image.shape
-        bytesPerLine = channels * width
-        qImg = QtGui.QImage(input_image.data, width, height,
-                            bytesPerLine, QtGui.QImage.Format_RGB888)
-        pixmap01 = QtGui.QPixmap.fromImage(qImg)
-        pixmap_image = QtGui.QPixmap(pixmap01)
-        pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-        self.orig_image.setPixmap(pixmap_image_scaled)
-        self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
-        self.orig_image.setScaledContents(True)
-        self.orig_image.setMinimumSize(1, 1)
-        self.orig_image.show()
+            timestamps.append(str(datetime.now))
+            input_image = imread(fn[0])
+            image_shape = input_image.shape
+            width = image_shape[1]
+            height = image_shape[0]
+            if len(image_shape) < 3:
+                channels = 1
+                bytesPerLine = channels * width
+                qImg = QtGui.QImage(input_image.data, width, height,
+                                    bytesPerLine,
+                                    QtGui.QImage.Format_Grayscale8)
+            else:
+                channels = image_shape[2]
+                bytesPerLine = channels * width
+                qImg = QtGui.QImage(input_image.data, width, height,
+                                    bytesPerLine, QtGui.QImage.Format_RGB888)
+            pixmap01 = QtGui.QPixmap.fromImage(qImg)
+            pixmap_image = QtGui.QPixmap(pixmap01)
+            pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+            self.orig_image = QLabel(self)
+            self.orig_image.setPixmap(pixmap_image_scaled)
+            self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
+            self.orig_image.setScaledContents(True)
+            self.orig_image.setMinimumSize(1, 1)
+            self.orig_image.show()
 
     def process_button(self):
         self.process_server()
@@ -146,14 +161,17 @@ class App(QTabWidget):
         images_base64 = []
         process = self.procbox.currentText()
         for x in range(len(fn)):
-            input_image = imread(fn[x])
-            image_base64 = base64.b64encode(input_image)
+            with open(fn[x], "rb") as image_file:
+                image_bytes = image_file.read()
+            image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
         r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
             "User": self.username,
+            "Timestamps": timestamps,
+            "FileNames": fn,
         })
         print(r2.text)
 

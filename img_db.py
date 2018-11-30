@@ -18,3 +18,8 @@ class DB_Image_Meta(MongoModel):
     user = fields.CharField()
     processing_times = fields.ListField(field=fields.FloatField())
     processing_types = fields.ListField(field=fields.CharField())
+    original_height = fields.IntegerField()
+    original_width = fields.IntegerField()
+    processed_height = fields.ListField(field=fields.IntegerField())
+    processed_width = fields.ListField(field=fields.IntegerField())
+    upload_timestamp = fields.DateTimeField()
