@@ -26,8 +26,6 @@ class App(QTabWidget):
         self.download_button = QPushButton('Download', self)
         self.processor_button = QPushButton('Process', self)
 
-
-
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
         self.setTabEnabled(1, False)
