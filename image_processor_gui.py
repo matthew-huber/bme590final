@@ -147,7 +147,6 @@ class App(QTabWidget):
             pixmap01 = QtGui.QPixmap.fromImage(qImg)
             pixmap_image = QtGui.QPixmap(pixmap01)
             pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-            self.orig_image = QLabel(self)
             self.orig_image.setPixmap(pixmap_image_scaled)
             self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
             self.orig_image.setScaledContents(True)
