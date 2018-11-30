@@ -135,7 +135,33 @@ def data_validation(dict):
 
 
 def addImagesToDatabase():
-    return True # placeholder
+    """adds image metadata to the database
+
+    :return: None
+    """
+    for x in range(len(s1)):
+        file_path = fn[x]
+        user = "Placeholder"
+        processing_time = time1[x]
+        processing_type = s2
+        original_height = OG_height[x]
+        original_width = OG_width[x]
+        proc_height = processed_height[x]
+        proc_width = processed_width[x]
+        upload_timestamp = s3[x]
+
+        db_img = DB_Image_Meta(img_file_path=file_path,
+                               user=user,
+                               original_height=original_height,
+                               original_width=original_width,
+                               upload_timestamp=upload_timestamp)
+
+        db_img.processing_times.append(processing_time)
+        db_img.processing_types.append(processing_type)
+        db_img.processed_height.append(proc_height)
+        db_img.processed_width.append(proc_width)
+
+        db_img.save()
 
 
 if __name__ == "__main__":
