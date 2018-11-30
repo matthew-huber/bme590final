@@ -112,7 +112,7 @@ class App(QTabWidget):
         options |= QFileDialog.DontUseNativeDialog
         global fn
         global timestamps
-        timestamps = []
+        timestamps = [0]
         fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
                                              "JPEG (*.JPEG *.jpeg *.JPG "
                                              "*.jpg *.JPE *.jpe "
@@ -128,7 +128,7 @@ class App(QTabWidget):
             self.insert_orig_image(fn)
 
     def insert_orig_image(self, fn):
-            timestamps.append(str(datetime.now))
+            timestamps[0] = (str(datetime.now))
             input_image = imread(fn[0])
             image_shape = input_image.shape
             width = image_shape[1]
@@ -180,6 +180,7 @@ def main():
     ex = App()
     ex.show()
     sys.exit(app.exec())
+
 
 if __name__ == '__main__':
     main()
