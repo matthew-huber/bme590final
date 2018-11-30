@@ -165,7 +165,7 @@ class App(QTabWidget):
             image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
-        r2 = requests.post("http://127.0.0.1:5000/upload", json={
+        r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
             "User": self.username,
