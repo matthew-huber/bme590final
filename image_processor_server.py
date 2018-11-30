@@ -106,7 +106,7 @@ def addImagesToDatabase():
         original_width = OG_width[x]
         proc_height = processed_height[x]
         proc_width = processed_width[x]
-        upload_timestamp = s3[x]
+        upload_timestamp = s3
 
         try:
             # check to see if the image already exists
