@@ -97,7 +97,8 @@ class App(QTabWidget):
         """
 
     def update_username(self):
-        self.username = self.entered_username.text
+        self.username = self.entered_username.text()
+        print(self.username)
         self.setTabEnabled(1, True)
         self.setCurrentIndex(1)
 
@@ -152,6 +153,7 @@ class App(QTabWidget):
         r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
+            "User": self.username,
         })
         print(r2.text)
 
