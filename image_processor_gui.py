@@ -22,6 +22,7 @@ class App(QTabWidget):
         self.procbox = QComboBox(self)
         self.download_box = QComboBox(self)
         self.orig_next_button = QPushButton('Next Image >>')
+        self.orig_prev_button = QPushButton('<< Prev Image')
 
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
@@ -85,6 +86,11 @@ class App(QTabWidget):
         orig_image_box.setLayout(orig_image_layout)
         tab2layout.addWidget(orig_image_box, 3, 0, 2, 2)
 
+        self.orig_prev_button.setEnabled(False)
+        self.orig_prev_button.setToolTip('No previous image to view')
+        self.orig_prev_button.clicked.connect(self.orig_prev_image)
+        tab2layout.addWidget(self.orig_prev_button, 5, 0)
+
         self.orig_next_button.setEnabled(False)
         self.orig_next_button.setToolTip('No next image to view')
         self.orig_next_button.clicked.connect(self.orig_next_image)
@@ -108,6 +114,13 @@ class App(QTabWidget):
         """
         first_image = fn.pop(0)
         fn.append(first_image)
+        self.insert_orig_image(fn)
+
+    def orig_prev_image(self):
+        """prev image
+        """
+        last_image = fn.pop(-1)
+        fn.insert(0, last_image)
         self.insert_orig_image(fn)
 
     def update_username(self):
@@ -141,9 +154,13 @@ class App(QTabWidget):
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
                 self.orig_next_button.setToolTip('View next image')
+                self.orig_prev_button.setEnabled(True)
+                self.orig_prev_button.setToolTip('View previous image')
             else:
                 self.orig_next_button.setEnabled(False)
                 self.orig_next_button.setToolTip('No next image to view')
+                self.orig_prev_button.setEnabled(False)
+                self.orig_prev_button.setToolTip('No previous image to view')
             self.insert_orig_image(fn)
 
     def insert_orig_image(self, fn):
