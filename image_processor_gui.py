@@ -50,43 +50,56 @@ class App(QTabWidget):
         open_button = QPushButton('Open image', self)
         open_button.setToolTip('Choose image file(s) to process')
         open_button.clicked.connect(self.file_select_button)
-        tab2layout.addWidget(open_button, 1, 0)
+        tab2layout.addWidget(open_button, 0, 0)
 
         global box
         box = QComboBox(self)
         box.addItems(["Histogram Equalization", "Contrast Stretching",
                       "Log Compression", "Reverse Video"])
-        tab2layout.addWidget(box, 2, 0)
+        tab2layout.addWidget(box, 1, 0)
+
+        #global box
+        download_box = QComboBox(self)
+        download_box.addItems([".JPG", ".PNG", ".TIFF"])
+        tab2layout.addWidget(download_box, 0, 3)
+
+        download_button = QPushButton('Download', self)
+        download_button.setToolTip('Hit Button to download image in selected format')
+        download_button.clicked.connect(self.download_image)
+        tab2layout.addWidget(download_button, 1, 3)
 
         processor_button = QPushButton('Process', self)
         processor_button.setToolTip('Hit Button to Send Image to Server for Processing')
         processor_button.clicked.connect(self.process_button)
-        tab2layout.addWidget(processor_button, 3, 0)
+        tab2layout.addWidget(processor_button, 2, 0)
 
         orig_image_box = QGroupBox("Original Image")
         orig_image_layout = QHBoxLayout()
         orig_image_layout.addWidget(self.orig_image)
         orig_image_box.setLayout(orig_image_layout)
-        tab2layout.addWidget(orig_image_box, 4, 0, 2, 2)
+        tab2layout.addWidget(orig_image_box, 3, 0, 2, 2)
 
         proc_image_box = QGroupBox("Processed Image")
         proc_image_layout = QHBoxLayout()
         proc_image_layout.addWidget(self.proc_image)
         proc_image_box.setLayout(proc_image_layout)
 
-
-        tab2layout.addWidget(proc_image_box, 4, 2, 2, 2)
+        tab2layout.addWidget(proc_image_box, 3, 2, 2, 2)
 
         self.tab2.setLayout(tab2layout)
 
-    @pyqtSlot()
-    def file_select_button(self):
-        self.openFileNamesDialog()
+    def download_image(self):
+        """Download image
+        """
 
     def update_username(self):
         self.username = self.entered_username.text
         self.setTabEnabled(1, True)
         self.setCurrentIndex(1)
+
+    @pyqtSlot()
+    def file_select_button(self):
+        self.openFileNamesDialog()
 
     def openFileNamesDialog(self):
         options = QFileDialog.Options()
