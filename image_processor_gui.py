@@ -18,6 +18,8 @@ class App(QTabWidget):
         self.proc_image = QLabel("")
 
         self.entered_username = QLineEdit()
+        self.proc_box = QComboBox(self)
+        self.download_box = QComboBox(self)
 
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
@@ -52,16 +54,18 @@ class App(QTabWidget):
         open_button.clicked.connect(self.file_select_button)
         tab2layout.addWidget(open_button, 0, 0)
 
-        global box
-        box = QComboBox(self)
-        box.addItems(["Histogram Equalization", "Contrast Stretching",
+        self.proc_box.setEditable(True)
+        self.proc_box.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        self.proc_box.lineEdit().setReadOnly(True)
+        self.proc_box.addItems(["Histogram Equalization", "Contrast Stretching",
                       "Log Compression", "Reverse Video"])
-        tab2layout.addWidget(box, 1, 0)
+        tab2layout.addWidget(self.proc_box, 1, 0)
 
-        #global box
-        download_box = QComboBox(self)
-        download_box.addItems([".JPG", ".PNG", ".TIFF"])
-        tab2layout.addWidget(download_box, 0, 3)
+        self.download_box.setEditable(True)
+        self.download_box.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        self.download_box.lineEdit().setReadOnly(True)
+        self.download_box.addItems([".JPG", ".PNG", ".TIFF"])
+        tab2layout.addWidget(self.download_box, 0, 3)
 
         download_button = QPushButton('Download', self)
         download_button.setToolTip('Hit Button to download image in selected format')
@@ -139,7 +143,7 @@ class App(QTabWidget):
 
     def process_server(self):
         images_base64 = []
-        process = box.currentText()
+        process = self.proc_box.currentText()
         for x in range(len(fn)):
             input_image = imread(fn[x])
             image_base64 = base64.b64encode(input_image)
