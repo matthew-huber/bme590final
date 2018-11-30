@@ -126,7 +126,7 @@ class App(QTabWidget):
                                              options=options)
         if fn:
             self.insert_orig_image(fn)
-  
+
     def insert_orig_image(self, fn):
             timestamps.append(str(datetime.now))
             input_image = imread(fn[0])
