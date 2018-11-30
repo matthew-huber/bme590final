@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtWidgets import QFileDialog, QComboBox, QLabel
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtGui, QtCore
 from matplotlib.pyplot import imread
@@ -9,38 +8,100 @@ import requests
 from datetime import datetime
 
 
-class App(QWidget):
+class App(QTabWidget):
+    def __init__(self, parent=None):
+        super(App, self).__init__(parent)
 
-    def __init__(self):
-        super().__init__()
-        self.title = 'Image Processor Control'
-        self.left = 10
-        self.top = 10
+        self.username = ""
+        self.tab1 = QWidget()
+        self.tab2 = QWidget()
+        self.orig_image = QLabel("")
+        self.proc_image = QLabel("")
+
+        self.entered_username = QLineEdit()
+        self.procbox = QComboBox(self)
+        self.download_box = QComboBox(self)
+
+        self.addTab(self.tab1, "Specify User")
+        self.addTab(self.tab2, "Process Image")
+        self.setTabEnabled(1, False)
+        self.tab1UI()
+        self.tab2UI()
+
+        self.left = 100
+        self.top = 100
         self.width = 640
         self.height = 480
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setWindowTitle('Image Processor Control')
 
-        button = QPushButton('Open image', self)
-        button.setToolTip('Choose image file(s) to process')
-        button.move(0, 0)
-        button.clicked.connect(self.file_select_button)
+    def tab1UI(self):
+        layout = QFormLayout()
+        layout.addRow("Username", self.entered_username)
+        enter_button = QHBoxLayout()
+        user_button = QPushButton("Enter")
+        user_button.setToolTip("Enter username")
+        user_button.clicked.connect(self.update_username)
+        enter_button.addWidget(user_button)
+        layout.addRow(enter_button)
+        self.tab1.setLayout(layout)
 
-        global box
-        box = QComboBox(self)
-        box.addItems(["Histogram Equalization", "Contrast Stretching",
-                      "Log Compression", "Reverse Video"])
-        box.move(0, 30)
+    def tab2UI(self):
 
-        button = QPushButton('Process', self)
-        button.setToolTip('Hit Button to Send Image to Server for Processing')
-        button.move(540, 440)
-        button.clicked.connect(self.process_button)
+        tab2layout = QGridLayout()
 
-        self.show()
+        open_button = QPushButton('Open image', self)
+        open_button.setToolTip('Choose image file(s) to process')
+        open_button.clicked.connect(self.file_select_button)
+        tab2layout.addWidget(open_button, 0, 0)
+
+        self.procbox.setEditable(True)
+        self.procbox.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        self.procbox.lineEdit().setReadOnly(True)
+        self.procbox.addItems(["Histogram Equalization", "Contrast Stretching",
+                               "Log Compression", "Reverse Video"])
+        tab2layout.addWidget(self.procbox, 1, 0)
+
+        self.download_box.setEditable(True)
+        self.download_box.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        self.download_box.lineEdit().setReadOnly(True)
+        self.download_box.addItems([".JPG", ".PNG", ".TIFF"])
+        tab2layout.addWidget(self.download_box, 0, 3)
+
+        download_button = QPushButton('Download', self)
+        download_button.setToolTip('Download image in selected format')
+        download_button.clicked.connect(self.download_image)
+        tab2layout.addWidget(download_button, 1, 3)
+
+        processor_button = QPushButton('Process', self)
+        processor_button.setToolTip('Send image to server for processing')
+        processor_button.clicked.connect(self.process_button)
+        tab2layout.addWidget(processor_button, 2, 0)
+
+        orig_image_box = QGroupBox("Original Image")
+        orig_image_layout = QHBoxLayout()
+        orig_image_layout.addWidget(self.orig_image)
+        orig_image_box.setLayout(orig_image_layout)
+        tab2layout.addWidget(orig_image_box, 3, 0, 2, 2)
+
+        proc_image_box = QGroupBox("Processed Image")
+        proc_image_layout = QHBoxLayout()
+        proc_image_layout.addWidget(self.proc_image)
+        proc_image_box.setLayout(proc_image_layout)
+
+        tab2layout.addWidget(proc_image_box, 3, 2, 2, 2)
+
+        self.tab2.setLayout(tab2layout)
+
+    def download_image(self):
+        """Download image
+        """
+
+    def update_username(self):
+        self.username = self.entered_username.text()
+        print(self.username)
+        self.setTabEnabled(1, True)
+        self.setCurrentIndex(1)
 
     @pyqtSlot()
     def file_select_button(self):
@@ -63,8 +124,10 @@ class App(QWidget):
                                              " TIFF (*.TIF *.tif *.TIFF "
                                              "*.tiff);; ICO (*.ICO *.ico)",
                                              options=options)
-
         if fn:
+            self.insert_orig_image(fn)
+
+    def insert_orig_image(self, fn):
             timestamps.append(str(datetime.now))
             input_image = imread(fn[0])
             image_shape = input_image.shape
@@ -84,20 +147,18 @@ class App(QWidget):
             pixmap01 = QtGui.QPixmap.fromImage(qImg)
             pixmap_image = QtGui.QPixmap(pixmap01)
             pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-            label_imageDisplay = QLabel(self)
-            label_imageDisplay.setPixmap(pixmap_image_scaled)
-            label_imageDisplay.setAlignment(QtCore.Qt.AlignCenter)
-            label_imageDisplay.setScaledContents(True)
-            label_imageDisplay.setMinimumSize(1, 1)
-            label_imageDisplay.move(150, 100)
-            label_imageDisplay.show()
+            self.orig_image.setPixmap(pixmap_image_scaled)
+            self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
+            self.orig_image.setScaledContents(True)
+            self.orig_image.setMinimumSize(1, 1)
+            self.orig_image.show()
 
     def process_button(self):
         self.process_server()
 
     def process_server(self):
         images_base64 = []
-        process = box.currentText()
+        process = self.procbox.currentText()
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
@@ -107,13 +168,18 @@ class App(QWidget):
         r2 = requests.post("http://0.0.0.0:5000/upload", json={
             "Images": images_base64,
             "Process": process,
+            "User": self.username,
             "Timestamps": timestamps,
             "FileNames": fn,
         })
         print(r2.text)
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
     ex = App()
+    ex.show()
     sys.exit(app.exec())
+
+if __name__ == '__main__':
+    main()
