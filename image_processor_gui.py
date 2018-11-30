@@ -6,6 +6,8 @@ import base64
 import sys
 import requests
 from datetime import datetime
+import zipfile
+import os
 
 
 class App(QTabWidget):
@@ -150,7 +152,8 @@ class App(QTabWidget):
                                              "Bitmap Files (*.BMP *.bmp"
                                              " *.DIB *.dib);;"
                                              " TIFF (*.TIF *.tif *.TIFF "
-                                             "*.tiff);; ICO (*.ICO *.ico)",
+                                             "*.tiff);; ICO (*.ICO *.ico)"
+                                             "ZIP (*.zip)",
                                              options=options)
         if fn:
             if len(fn) > 1:
@@ -168,6 +171,12 @@ class App(QTabWidget):
 
     def insert_orig_image(self, fn):
             timestamps[0] = (str(datetime.now()))
+            if zipfile.is_zipfile(fn[0]):
+                z = zipfile.ZipFile(fn[0], "r")
+                for filename in z.namelist():
+                    fn[0] = filename
+                    z.extractall(os.path.dirname(os.path.realpath(__file__)))
+            print(fn)
             input_image = imread(fn[0])
             image_shape = input_image.shape
             width = image_shape[1]
