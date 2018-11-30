@@ -117,6 +117,7 @@ def gui_server():
         return "woo"
     return "Bad Data send new Image(s) or Modified Version of Image"
 
+
 def data_validation(dict):
     s1 = dict.get("Images")
     s2 = dict.get("Process")
