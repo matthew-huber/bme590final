@@ -21,6 +21,8 @@ class App(QTabWidget):
         self.entered_username = QLineEdit()
         self.procbox = QComboBox(self)
         self.download_box = QComboBox(self)
+        self.orig_next_button = QPushButton('Next Image >>')
+
 
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
@@ -84,6 +86,11 @@ class App(QTabWidget):
         orig_image_box.setLayout(orig_image_layout)
         tab2layout.addWidget(orig_image_box, 3, 0, 2, 2)
 
+        self.orig_next_button.setEnabled(False)
+        self.orig_next_button.setToolTip('No next image to view')
+        self.orig_next_button.clicked.connect(self.orig_next_image)
+        tab2layout.addWidget(self.orig_next_button, 5, 1)
+
         proc_image_box = QGroupBox("Processed Image")
         proc_image_layout = QHBoxLayout()
         proc_image_layout.addWidget(self.proc_image)
@@ -95,6 +102,10 @@ class App(QTabWidget):
 
     def download_image(self):
         """Download image
+        """
+
+    def orig_next_image(self):
+        """next image
         """
 
     def update_username(self):
