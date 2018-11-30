@@ -46,14 +46,17 @@ def gui_server():
         global processed_width
         global OG_height
         global OG_width
+        global processing_times
+        processing_times = []
         processed_images = []
         processed_height = []
         processed_width = []
         OG_height = []
         OG_width = []
         if s2 == "Histogram Equalization":
-            start = time.time()
             for x in range(len(s1)):
+                start = time.time()
+
                 byte_image = base64.b64decode(s1[x])
                 image_buf = io.BytesIO(byte_image)
                 i = mpimg.imread(image_buf, format='JPG')
@@ -68,10 +71,14 @@ def gui_server():
                 base64_string = processed_image_base64.decode('ascii')
                 processed_images.append(base64_string)
 
-            end = time.time()
+                end = time.time()
+
+                processing_times.append(end-start)
+
         elif s2 == "Contrast Stretching":
             start = time.time()
             for x in range(len(s1)):
+                start = time.time()
                 byte_image = base64.b64decode(s1[x])
                 image_buf = io.BytesIO(byte_image)
                 i = mpimg.imread(image_buf, format='JPG')
@@ -85,10 +92,12 @@ def gui_server():
                 processed_image_base64 = base64.b64encode(processed_image)
                 base64_string = processed_image_base64.decode('ascii')
                 processed_images.append(base64_string)
-            end = time.time()
+                end = time.time()
+                processing_times.append(end-start)
+
         elif s2 == "Log Compression":
-            start = time.time()
             for x in range(len(s1)):
+                start = time.time()
                 byte_image = base64.b64decode(s1[x])
                 image_buf = io.BytesIO(byte_image)
                 i = mpimg.imread(image_buf, format='JPG')
@@ -102,10 +111,11 @@ def gui_server():
                 processed_image_base64 = base64.b64encode(processed_image)
                 base64_string = processed_image_base64.decode('ascii')
                 processed_images.append(base64_string)
-            end = time.time()
+                end = time.time()
+                processing_times.append(end-start)
         elif s2 == "Reverse Video":
-            start = time.time()
             for x in range(len(s1)):
+                start = time.time()
                 byte_image = base64.b64decode(s1[x])
                 image_buf = io.BytesIO(byte_image)
                 i = mpimg.imread(image_buf, format='JPG')
@@ -119,9 +129,8 @@ def gui_server():
                 processed_image_base64 = base64.b64encode(processed_image)
                 base64_string = processed_image_base64.decode('ascii')
                 processed_images.append(base64_string)
-            end = time.time()
-        global time1
-        time1 = end - start
+                end = time.time()
+                processing_times.append(end-start)
 
         addImagesToDatabase()
         return "woo"
@@ -145,7 +154,7 @@ def addImagesToDatabase():
     for x in range(len(s1)):
         file_path = fn[x]
         user = username
-        processing_time = time1
+        processing_time = processing_times[x]
         processing_type = s2
         original_height = OG_height[x]
         original_width = OG_width[x]
