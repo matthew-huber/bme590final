@@ -67,11 +67,19 @@ class App(QWidget):
         if fn:
             timestamps.append(str(datetime.now))
             input_image = imread(fn[0])
-            print(type(input_image))
-            height, width, channels = input_image.shape
-            bytesPerLine = channels * width
-            qImg = QtGui.QImage(input_image.data, width, height,
-                                bytesPerLine, QtGui.QImage.Format_RGB888)
+            image_shape = input_image.shape
+            width = image_shape[1]
+            height = image_shape[0]
+            if len(image_shape) < 3:
+                channels = 1
+                bytesPerLine = channels * width
+                qImg = QtGui.QImage(input_image.data, width, height,
+                                    bytesPerLine, QtGui.QImage.Format_Grayscale8)
+            else:
+                channels = image_shape[2]
+                bytesPerLine = channels * width
+                qImg = QtGui.QImage(input_image.data, width, height,
+                                    bytesPerLine, QtGui.QImage.Format_RGB888)
             pixmap01 = QtGui.QPixmap.fromImage(qImg)
             pixmap_image = QtGui.QPixmap(pixmap01)
             pixmap_image_scaled = pixmap_image.scaledToHeight(240)
