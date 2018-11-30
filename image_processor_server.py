@@ -48,13 +48,13 @@ def gui_server():
             byte_image = base64.b64decode(s1[x])
             image_buf = io.BytesIO(byte_image)
             i = mpimg.imread(image_buf, format='JPG')
-            height1, width1, channels1 = i.shape
-            OG_height.append(height1)
-            OG_width.append(width1)
+            i_shape = i.shape
+            OG_height.append(i_shape[0])
+            OG_width.append(i_shape[1])
             processed_image = pro.histogramEqualization(i)
-            height, width, channels = processed_image.shape
-            processed_height.append(height)
-            processed_width.append(width)
+            processed_shape = processed_image.shape
+            processed_height.append(processed_shape[0])
+            processed_width.append(processed_shape[1])
             processed_image_base64 = base64.b64encode(processed_image)
             base64_string = processed_image_base64.decode('ascii')
             processed_images.append(base64_string)
@@ -65,13 +65,13 @@ def gui_server():
             byte_image = base64.b64decode(s1[x])
             image_buf = io.BytesIO(byte_image)
             i = mpimg.imread(image_buf, format='JPG')
-            height1, width1, channels1 = i.shape
-            OG_height.append(height1)
-            OG_width.append(width1)
+            i_shape = i.shape
+            OG_height.append(i_shape[0])
+            OG_width.append(i_shape[1])
             processed_image = pro.contrastStretch(i)
-            height, width, channels = processed_image.shape
-            processed_height.append(height)
-            processed_width.append(width)
+            processed_shape = processed_image.shape
+            processed_height.append(processed_shape[0])
+            processed_width.append(processed_shape[1])
             processed_image_base64 = base64.b64encode(processed_image)
             base64_string = processed_image_base64.decode('ascii')
             processed_images.append(base64_string)
@@ -82,13 +82,13 @@ def gui_server():
             byte_image = base64.b64decode(s1[x])
             image_buf = io.BytesIO(byte_image)
             i = mpimg.imread(image_buf, format='JPG')
-            height1, width1, channels1 = i.shape
-            OG_height.append(height1)
-            OG_width.append(width1)
+            i_shape = i.shape
+            OG_height.append(i_shape[0])
+            OG_width.append(i_shape[1])
             processed_image = pro.logCompression(i)
-            height, width, channels = processed_image.shape
-            processed_height.append(height)
-            processed_width.append(width)
+            processed_shape = processed_image.shape
+            processed_height.append(processed_shape[0])
+            processed_width.append(processed_shape[1])
             processed_image_base64 = base64.b64encode(processed_image)
             base64_string = processed_image_base64.decode('ascii')
             processed_images.append(base64_string)
@@ -99,13 +99,13 @@ def gui_server():
             byte_image = base64.b64decode(s1[x])
             image_buf = io.BytesIO(byte_image)
             i = mpimg.imread(image_buf, format='JPG')
-            height1, width1, channels1 = i.shape
-            OG_height.append(height1)
-            OG_width.append(width1)
+            i_shape = i.shape
+            OG_height.append(i_shape[0])
+            OG_width.append(i_shape[1])
             processed_image = pro.reverseVideo(i)
-            height, width, channels = processed_image.shape
-            processed_height.append(height)
-            processed_width.append(width)
+            processed_shape = processed_image.shape
+            processed_height.append(processed_shape[0])
+            processed_width.append(processed_shape[1])
             processed_image_base64 = base64.b64encode(processed_image)
             base64_string = processed_image_base64.decode('ascii')
             processed_images.append(base64_string)
