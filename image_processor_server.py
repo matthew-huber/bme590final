@@ -4,6 +4,7 @@ import base64
 import time
 import io
 import matplotlib.image as mpimg
+from img_db import DB_Image_Meta
 
 app = Flask(__name__)
 
@@ -27,10 +28,13 @@ def server_gui(processed_data):
 def gui_server():
     r = request.get_json()
     global s1
+    global s2
     global s3
+    global fn
     s1 = r.get("Images")
     s2 = r.get("Process")
     s3 = r.get("Timestamps")
+    fn = r.get("FileNames")
     check = data_validation(r)
     if check:
         pro = ImageProcessor()
@@ -60,6 +64,7 @@ def gui_server():
                 processed_image_base64 = base64.b64encode(processed_image)
                 base64_string = processed_image_base64.decode('ascii')
                 processed_images.append(base64_string)
+
             end = time.time()
         elif s2 == "Contrast Stretching":
             start = time.time()
@@ -114,6 +119,8 @@ def gui_server():
             end = time.time()
         global time1
         time1 = end - start
+
+        addImagesToDatabase()
         return "woo"
     return "Bad Data send new Image(s) or Modified Version of Image"
 
@@ -125,6 +132,37 @@ def data_validation(dict):
     if s1 is not None and s2 is not None and s3 is not None:
         return True
     return False
+
+
+def addImagesToDatabase():
+    """adds image metadata to the database
+
+    :return: None
+    """
+    for x in range(len(s1)):
+        file_path = fn[x]
+        user = "Placeholder"
+        processing_time = time1[x]
+        processing_type = s2
+        original_height = OG_height[x]
+        original_width = OG_width[x]
+        proc_height = processed_height[x]
+        proc_width = processed_width[x]
+        upload_timestamp = s3[x]
+
+        db_img = DB_Image_Meta(img_file_path=file_path,
+                               user=user,
+                               original_height=original_height,
+                               original_width=original_width,
+                               upload_timestamp=upload_timestamp)
+
+        db_img.processing_times.append(processing_time)
+        db_img.processing_types.append(processing_type)
+        db_img.processed_height.append(proc_height)
+        db_img.processed_width.append(proc_width)
+
+        db_img.save()
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
