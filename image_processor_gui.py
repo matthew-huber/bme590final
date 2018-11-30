@@ -18,7 +18,7 @@ class App(QTabWidget):
         self.proc_image = QLabel("")
 
         self.entered_username = QLineEdit()
-        self.proc_box = QComboBox(self)
+        self.procbox = QComboBox(self)
         self.download_box = QComboBox(self)
 
         self.addTab(self.tab1, "Specify User")
@@ -54,12 +54,12 @@ class App(QTabWidget):
         open_button.clicked.connect(self.file_select_button)
         tab2layout.addWidget(open_button, 0, 0)
 
-        self.proc_box.setEditable(True)
-        self.proc_box.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
-        self.proc_box.lineEdit().setReadOnly(True)
-        self.proc_box.addItems(["Histogram Equalization", "Contrast Stretching",
-                      "Log Compression", "Reverse Video"])
-        tab2layout.addWidget(self.proc_box, 1, 0)
+        self.procbox.setEditable(True)
+        self.procbox.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        self.procbox.lineEdit().setReadOnly(True)
+        self.procbox.addItems(["Histogram Equalization", "Contrast Stretching",
+                               "Log Compression", "Reverse Video"])
+        tab2layout.addWidget(self.procbox, 1, 0)
 
         self.download_box.setEditable(True)
         self.download_box.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
@@ -68,12 +68,12 @@ class App(QTabWidget):
         tab2layout.addWidget(self.download_box, 0, 3)
 
         download_button = QPushButton('Download', self)
-        download_button.setToolTip('Hit Button to download image in selected format')
+        download_button.setToolTip('Download image in selected format')
         download_button.clicked.connect(self.download_image)
         tab2layout.addWidget(download_button, 1, 3)
 
         processor_button = QPushButton('Process', self)
-        processor_button.setToolTip('Hit Button to Send Image to Server for Processing')
+        processor_button.setToolTip('Send image to server for processing')
         processor_button.clicked.connect(self.process_button)
         tab2layout.addWidget(processor_button, 2, 0)
 
@@ -144,7 +144,7 @@ class App(QTabWidget):
 
     def process_server(self):
         images_base64 = []
-        process = self.proc_box.currentText()
+        process = self.procbox.currentText()
         for x in range(len(fn)):
             input_image = imread(fn[x])
             image_base64 = base64.b64encode(input_image)
