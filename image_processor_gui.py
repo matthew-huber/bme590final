@@ -108,6 +108,7 @@ class App(QWidget):
             "Images": images_base64,
             "Process": process,
             "Timestamps": timestamps,
+            "FileNames": fn,
         })
         print(r2.text)
 
