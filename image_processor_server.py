@@ -17,10 +17,13 @@ def server_gui(processed_data):
         "OG Height": OG_height,
         "OG Width": OG_width,
         "Processed Images": processed_image,
-        "Time Spent": time1,
+        "Time Spent": processing_times,
         "Processed Height": processed_height,
         "Processed Width": processed_width,
     }
+    print(OG_height)
+    print(processing_times)
+
     return return_data
 
 
@@ -39,98 +42,41 @@ def gui_server():
     username = r.get("User")
 
     check = data_validation(r)
+
+    pro = ImageProcessor()
+    global processed_image
+    global processed_height
+    global processed_width
+    global OG_height
+    global OG_width
+    global processing_times
+    processing_times = []
+    processed_images = []
+    processed_height = []
+    processed_width = []
+    OG_height = []
+    OG_width = []
+
     if check:
-        pro = ImageProcessor()
-        global processed_image
-        global processed_height
-        global processed_width
-        global OG_height
-        global OG_width
-        global processing_times
-        processing_times = []
-        processed_images = []
-        processed_height = []
-        processed_width = []
-        OG_height = []
-        OG_width = []
-        if s2 == "Histogram Equalization":
-            for x in range(len(s1)):
-                start = time.time()
+        for x in range(len(s1)):
 
-                byte_image = base64.b64decode(s1[x])
-                image_buf = io.BytesIO(byte_image)
-                i = mpimg.imread(image_buf, format='JPG')
-                i_shape = i.shape
-                OG_height.append(i_shape[0])
-                OG_width.append(i_shape[1])
-                processed_image = pro.histogramEqualization(i)
-                processed_shape = processed_image.shape
-                processed_height.append(processed_shape[0])
-                processed_width.append(processed_shape[1])
-                processed_image_base64 = base64.b64encode(processed_image)
-                base64_string = processed_image_base64.decode('ascii')
-                processed_images.append(base64_string)
+            byte_image = base64.b64decode(s1[x])
+            i = decodeImage(byte_image)
 
-                end = time.time()
-
-                processing_times.append(end-start)
-
-        elif s2 == "Contrast Stretching":
             start = time.time()
-            for x in range(len(s1)):
-                start = time.time()
-                byte_image = base64.b64decode(s1[x])
-                image_buf = io.BytesIO(byte_image)
-                i = mpimg.imread(image_buf, format='JPG')
-                i_shape = i.shape
-                OG_height.append(i_shape[0])
-                OG_width.append(i_shape[1])
-                processed_image = pro.contrastStretch(i)
-                processed_shape = processed_image.shape
-                processed_height.append(processed_shape[0])
-                processed_width.append(processed_shape[1])
-                processed_image_base64 = base64.b64encode(processed_image)
-                base64_string = processed_image_base64.decode('ascii')
-                processed_images.append(base64_string)
-                end = time.time()
-                processing_times.append(end-start)
+            processed_image = process(i, s2, pro)
+            end = time.time()
 
-        elif s2 == "Log Compression":
-            for x in range(len(s1)):
-                start = time.time()
-                byte_image = base64.b64decode(s1[x])
-                image_buf = io.BytesIO(byte_image)
-                i = mpimg.imread(image_buf, format='JPG')
-                i_shape = i.shape
-                OG_height.append(i_shape[0])
-                OG_width.append(i_shape[1])
-                processed_image = pro.logCompression(i)
-                processed_shape = processed_image.shape
-                processed_height.append(processed_shape[0])
-                processed_width.append(processed_shape[1])
-                processed_image_base64 = base64.b64encode(processed_image)
-                base64_string = processed_image_base64.decode('ascii')
-                processed_images.append(base64_string)
-                end = time.time()
-                processing_times.append(end-start)
-        elif s2 == "Reverse Video":
-            for x in range(len(s1)):
-                start = time.time()
-                byte_image = base64.b64decode(s1[x])
-                image_buf = io.BytesIO(byte_image)
-                i = mpimg.imread(image_buf, format='JPG')
-                i_shape = i.shape
-                OG_height.append(i_shape[0])
-                OG_width.append(i_shape[1])
-                processed_image = pro.reverseVideo(i)
-                processed_shape = processed_image.shape
-                processed_height.append(processed_shape[0])
-                processed_width.append(processed_shape[1])
-                processed_image_base64 = base64.b64encode(processed_image)
-                base64_string = processed_image_base64.decode('ascii')
-                processed_images.append(base64_string)
-                end = time.time()
-                processing_times.append(end-start)
+            proc_time = end-start
+            processing_times.append(proc_time)
+
+            OG_characteristics = getImageCharacteristics(i)
+            addImageCharacteristics(OG_characteristics, "original")
+            proc_characteristics = getImageCharacteristics(processed_image)
+            addImageCharacteristics(proc_characteristics, "processed")
+
+            encoded_proc_img = encodeImage(processed_image)
+            processed_images.append(encoded_proc_img)
 
         addImagesToDatabase()
         return "woo"
@@ -181,6 +127,78 @@ def addImagesToDatabase():
 
         db_img.save()
 
+
+def process(img, proc_type, IP):
+    """Applies specified proc_type to img using the ImageProcessor IP
+
+    :param img:
+    :param proc_type:
+    :param IP:
+    :return:
+    """
+    if proc_type == "Histogram Equalization":
+        proc_img = IP.histogramEqualization(img)
+    elif proc_type == "Contrast Stretching":
+        proc_img = IP.contrastStretch(img)
+    elif proc_type == "Reverse Video":
+        proc_img = IP.reverseVideo(img)
+    elif proc_type == "Log Compression":
+        proc_img = IP.logCompression(img)
+
+    return proc_img
+
+
+def getImageCharacteristics(img):
+    """Gets the height and width characteristics of an image
+
+    :param img:
+    :return:
+    """
+    img_char = {}
+    img_char["height"] = img.shape[0]
+    img_char["width"] = img.shape[1]
+
+    return img_char
+
+
+def addImageCharacteristics(img_char, img_type):
+    """Adds the image characteristics (made from getImageCharacteristics
+    function) to the global image characteristic variables
+
+    :param img_char:
+    :param img_type:
+    :return:
+    """
+    if img_type == "original":
+        OG_height.append(img_char["height"])
+        OG_width.append(img_char["width"])
+    elif img_type == "processed":
+        processed_height.append(img_char["height"])
+        processed_width.append(img_char["width"])
+
+
+def decodeImage(byte_img):
+    """Decodes a byte_image to a numpy array
+
+    :param byte_img:
+    :return:
+    """
+    image_buf = io.BytesIO(byte_img)
+
+    i = mpimg.imread(image_buf, format='JPG')
+
+    return i
+
+
+def encodeImage(img):
+    """Encodes a numpy array into a byte image
+
+    :param img:
+    :return:
+    """
+    processed_image_base64 = base64.b64encode(processed_image)
+    base64_string = processed_image_base64.decode('ascii')
+    return base64_string
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
