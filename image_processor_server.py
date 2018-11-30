@@ -145,13 +145,13 @@ def addImagesToDatabase():
     for x in range(len(s1)):
         file_path = fn[x]
         user = username
-        processing_time = time1[x]
+        processing_time = time1
         processing_type = s2
         original_height = OG_height[x]
         original_width = OG_width[x]
         proc_height = processed_height[x]
         proc_width = processed_width[x]
-        upload_timestamp = s3[x]
+        upload_timestamp = s3
 
         try:
             # check to see if the image already exists
