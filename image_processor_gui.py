@@ -74,7 +74,8 @@ class App(QWidget):
                 channels = 1
                 bytesPerLine = channels * width
                 qImg = QtGui.QImage(input_image.data, width, height,
-                                    bytesPerLine, QtGui.QImage.Format_Grayscale8)
+                                    bytesPerLine,
+                                    QtGui.QImage.Format_Grayscale8)
             else:
                 channels = image_shape[2]
                 bytesPerLine = channels * width
