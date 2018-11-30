@@ -150,11 +150,17 @@ def addImagesToDatabase():
         proc_width = processed_width[x]
         upload_timestamp = s3[x]
 
-        db_img = DB_Image_Meta(img_file_path=file_path,
-                               user=user,
-                               original_height=original_height,
-                               original_width=original_width,
-                               upload_timestamp=upload_timestamp)
+        try:
+            # check to see if the image already exists
+            db_img = DB_Image_Meta.objects.raw({"_id": file_path}).first()
+        except:
+            # Make a new one if an exception was raised (assuming that
+            # exception means that image does not currently exist.)
+            db_img = DB_Image_Meta(img_file_path=file_path,
+                                   user=user,
+                                   original_height=original_height,
+                                   original_width=original_width,
+                                   upload_timestamp=upload_timestamp)
 
         db_img.processing_times.append(processing_time)
         db_img.processing_types.append(processing_type)
