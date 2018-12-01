@@ -17,7 +17,7 @@ def server_gui():
         "Timestamps": str(s3),
         "OG Height": str(OG_height),
         "OG Width": str(OG_width),
-        "Processed Images": str(processed_image),
+        "Processed Images": str(processed_images),
         "Time Spent": str(processing_times),
         "Processed Height": str(processed_height),
         "Processed Width": str(processed_width),
@@ -44,7 +44,7 @@ def gui_server():
     check = data_validation(r)
 
     pro = ImageProcessor()
-    global processed_image
+    global processed_images
     global processed_height
     global processed_width
     global OG_height
