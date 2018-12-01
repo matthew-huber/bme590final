@@ -8,6 +8,8 @@ import requests
 from datetime import datetime
 import zipfile
 import os
+import time
+import ast
 
 
 class App(QTabWidget):
@@ -221,7 +223,13 @@ class App(QTabWidget):
             "Timestamps": timestamps,
             "FileNames": fn,
         })
-        print(r2.text)
+        time.sleep(2)
+        global content
+        content = requests.get("http://0.0.0.0:5000/download")
+        content = content.json()
+        print(content)
+        print(type(content))
+        unpack_server_info(content)
 
 
 def main():
@@ -229,6 +237,35 @@ def main():
     ex = App()
     ex.show()
     sys.exit(app.exec())
+
+
+def unpack_server_info(content1):
+    global s1  # OG Images
+    global s2  # TimeStamps
+    global s3  # OG Height
+    global s4  # OG Width
+    global s5  # Processed Image
+    global s6  # Time Spent
+    global s7  # Processed Height
+    global s8  # Processed Width
+    s1 = content1.get("OG Images")
+    s2 = content1.get("Timestamps")
+    print(s2)
+    s3 = content1.get("OG Height")
+    s4 = content1.get("OG Width")
+    s5 = content1.get("Processed Images")
+    s6 = content1.get("Time Spent")
+    s7 = content1.get("Processed Height")
+    s8 = content1.get("Processed Width")
+    s1 = ast.literal_eval(s1)
+    s2 = ast.literal_eval(s2)
+    s3 = ast.literal_eval(s3)
+    s4 = ast.literal_eval(s4)
+    s5 = ast.literal_eval(s5)
+    s6 = ast.literal_eval(s6)
+    s7 = ast.literal_eval(s7)
+    s8 = ast.literal_eval(s8)
+    return "woo"
 
 
 if __name__ == '__main__':
