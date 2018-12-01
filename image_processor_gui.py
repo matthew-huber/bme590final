@@ -273,8 +273,5 @@ def unpack_server_info(content1):
     return "woo"
 
 
-
-
-
 if __name__ == '__main__':
     main()
