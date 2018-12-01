@@ -10,6 +10,8 @@ import zipfile
 import os
 import time
 import ast
+import matplotlib.image as mpimg
+import io
 
 
 class App(QTabWidget):
@@ -131,7 +133,6 @@ class App(QTabWidget):
 
     def update_username(self):
         self.username = self.entered_username.text()
-        print(self.username)
         self.setTabEnabled(1, True)
         self.setCurrentIndex(1)
 
@@ -178,8 +179,8 @@ class App(QTabWidget):
                 for filename in z.namelist():
                     fn[0] = filename
                     z.extractall(os.path.dirname(os.path.realpath(__file__)))
-            print(fn)
             input_image = imread(fn[0])
+            print(type(input_image))
             image_shape = input_image.shape
             width = image_shape[1]
             height = image_shape[0]
@@ -203,6 +204,32 @@ class App(QTabWidget):
             self.orig_image.setMinimumSize(1, 1)
             self.orig_image.show()
 
+    def insert_processed_image(self, processed_images):
+        byte_image = base64.b64decode(processed_images)
+        input_image = decodeImage(byte_image)
+        image_shape = input_image.shape
+        width = image_shape[1]
+        height = image_shape[0]
+        if len(image_shape) < 3:
+            channels = 1
+            bytesPerLine = channels * width
+            qImg = QtGui.QImage(input_image.data, width, height,
+                                bytesPerLine,
+                                QtGui.QImage.Format_Grayscale8)
+        else:
+            channels = image_shape[2]
+            bytesPerLine = channels * width
+            qImg = QtGui.QImage(input_image.data, width, height,
+                                bytesPerLine, QtGui.QImage.Format_RGB888)
+        pixmap01 = QtGui.QPixmap.fromImage(qImg)
+        pixmap_image = QtGui.QPixmap(pixmap01)
+        pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+        self.proc_image.setPixmap(pixmap_image_scaled)
+        self.proc_image.setAlignment(QtCore.Qt.AlignCenter)
+        self.proc_image.setScaledContents(True)
+        self.proc_image.setMinimumSize(1, 1)
+        self.proc_image.show()
+
     def process_button(self):
         self.download_button.setEnabled(True)
         self.process_server()
@@ -213,6 +240,7 @@ class App(QTabWidget):
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
+                print(type(image_bytes))
             image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
@@ -227,9 +255,8 @@ class App(QTabWidget):
         global content
         content = requests.get("http://0.0.0.0:5000/download")
         content = content.json()
-        print(content)
-        print(type(content))
         unpack_server_info(content)
+        self.insert_processed_image(s5[0])
 
 
 def main():
@@ -250,7 +277,6 @@ def unpack_server_info(content1):
     global s8  # Processed Width
     s1 = content1.get("OG Images")
     s2 = content1.get("Timestamps")
-    print(s2)
     s3 = content1.get("OG Height")
     s4 = content1.get("OG Width")
     s5 = content1.get("Processed Images")
@@ -266,6 +292,19 @@ def unpack_server_info(content1):
     s7 = ast.literal_eval(s7)
     s8 = ast.literal_eval(s8)
     return "woo"
+
+
+def decodeImage(byte_img):
+    """Decodes a byte_image to a numpy array
+
+    :param byte_img:
+    :return:
+    """
+    image_buf = io.BytesIO(byte_img)
+
+    i = mpimg.imread(image_buf, format='JPG')
+
+    return i
 
 
 if __name__ == '__main__':
