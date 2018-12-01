@@ -5,26 +5,26 @@ import time
 import io
 import matplotlib.image as mpimg
 from img_db import DB_Image_Meta
+import json
 
 app = Flask(__name__)
 
 
 @app.route("/download", methods=["GET"])
-def server_gui(processed_data):
+def server_gui():
     return_data = {
-        "OG Images": s1,
-        "Timestamps": s3,
-        "OG Height": OG_height,
-        "OG Width": OG_width,
-        "Processed Images": processed_image,
-        "Time Spent": processing_times,
-        "Processed Height": processed_height,
-        "Processed Width": processed_width,
+        "OG Images": str(s1),
+        "Timestamps": str(s3),
+        "OG Height": str(OG_height),
+        "OG Width": str(OG_width),
+        "Processed Images": str(processed_image),
+        "Time Spent": str(processing_times),
+        "Processed Height": str(processed_height),
+        "Processed Width": str(processed_width),
     }
-    print(OG_height)
-    print(processing_times)
+    r = json.dumps(return_data)
 
-    return return_data
+    return r
 
 
 @app.route("/upload", methods=['POST'])
@@ -196,7 +196,7 @@ def encodeImage(img):
     :param img:
     :return:
     """
-    processed_image_base64 = base64.b64encode(processed_image)
+    processed_image_base64 = base64.b64encode(img)
     base64_string = processed_image_base64.decode('ascii')
     return base64_string
 
