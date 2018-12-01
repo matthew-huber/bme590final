@@ -232,11 +232,6 @@ class App(QTabWidget):
         unpack_server_info(content)
 
 
-
-
-
-
-
 def main():
     app = QApplication(sys.argv)
     ex = App()
