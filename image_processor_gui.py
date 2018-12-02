@@ -133,8 +133,9 @@ class App(QTabWidget):
 
     def update_username(self):
         self.username = self.entered_username.text()
-        self.setTabEnabled(1, True)
-        self.setCurrentIndex(1)
+        if self.username != "":
+            self.setTabEnabled(1, True)
+            self.setCurrentIndex(1)
 
     @pyqtSlot()
     def file_select_button(self):
