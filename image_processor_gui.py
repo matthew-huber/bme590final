@@ -24,7 +24,11 @@ class App(QTabWidget):
         self.orig_image = QLabel("")
         self.proc_image = QLabel("")
 
+        # tab1
         self.entered_username = QLineEdit()
+        self.existing_users = QComboBox(self)
+
+        # tab2
         self.procbox = QComboBox(self)
         self.download_box = QComboBox(self)
         self.orig_next_button = QPushButton('Next Image >>')
@@ -32,6 +36,7 @@ class App(QTabWidget):
         self.download_button = QPushButton('Download', self)
         self.processor_button = QPushButton('Process', self)
 
+        self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
         self.setTabEnabled(1, False)
@@ -47,7 +52,14 @@ class App(QTabWidget):
 
     def tab1UI(self):
         layout = QFormLayout()
-        layout.addRow("Username", self.entered_username)
+        line_one_layout = QHBoxLayout()
+        username_layout = QFormLayout()
+        line_one_layout.addWidget(self.entered_username)
+        line_one_layout.addWidget(self.existing_users)
+        username_layout.addRow("Username", line_one_layout)
+
+        layout.addRow(username_layout)
+
         enter_button = QHBoxLayout()
         user_button = QPushButton("Enter")
         user_button.setToolTip("Enter username")
@@ -112,6 +124,16 @@ class App(QTabWidget):
         tab2layout.addWidget(proc_image_box, 3, 2, 2, 2)
 
         self.tab2.setLayout(tab2layout)
+
+    def changed_tab(self, i):
+        #if i == 0:
+            #user_list = requests.get("http://0.0.0.0:5000/user_list")
+        """
+
+        :param i:
+        :return:
+        """
+
 
     def download_image(self):
         """Download image
