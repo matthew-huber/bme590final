@@ -36,12 +36,13 @@ class ImageProcessor:
         return log_comp_img
 
     def reverseVideo(self, img):
-        is_gs = self.isGrayscale(img)
-        if not is_gs:
-            raise ValueError
+        """Inverts the colors in an image
 
-        gs_inverted = np.invert(img)
-        return gs_inverted
+        :param img: Image to be processed
+        :return: inverted_img: Image with inverted colors
+        """
+        inverted_img = np.invert(img)
+        return inverted_img
 
     def isGrayscale(self, img):
         """Checks to see if an image is grayscale
