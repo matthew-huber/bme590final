@@ -26,7 +26,8 @@ class App(QTabWidget):
 
         # tab1
         self.entered_username = QLineEdit()
-        self.existing_users = QComboBox(self)
+        self.user_select = QComboBox(self)
+        self.user_select_error = QLabel("No user entered or selected")
 
         # tab2
         self.procbox = QComboBox(self)
@@ -56,7 +57,7 @@ class App(QTabWidget):
         username_layout = QFormLayout()
         line_one_layout.addWidget(self.entered_username)
         line_one_layout.addWidget(QLabel("Or select from existing users:"))
-        line_one_layout.addWidget(self.existing_users)
+        line_one_layout.addWidget(self.user_select)
         username_layout.addRow("Enter Username", line_one_layout)
 
         layout.addRow(username_layout)
@@ -67,6 +68,8 @@ class App(QTabWidget):
         user_button.clicked.connect(self.update_username)
         enter_button.addWidget(user_button)
         layout.addRow(enter_button)
+        layout.addRow(self.user_select_error)
+        self.user_select_error.hide()
         self.tab1.setLayout(layout)
 
     def tab2UI(self):
@@ -128,10 +131,11 @@ class App(QTabWidget):
 
     def changed_tab(self, i):
         if i == 0:
-            self.existing_users.clear()
+            self.user_select.clear()
             user_list = requests.get("http://127.0.0.1:5000/user_list")
             user_list = user_list.json()
-            self.existing_users.addItems(user_list)
+            user_list.insert(0, "Select:")
+            self.user_select.addItems(user_list)
 
     def download_image(self):
         """Download image
@@ -153,9 +157,16 @@ class App(QTabWidget):
 
     def update_username(self):
         self.username = self.entered_username.text()
-        if self.username != "":
+        dropdown_text = self.user_select.currentText()
+
+        if self.username != "" or dropdown_text != "Select:":
+            if self.username == "":
+                self.username = dropdown_text
             self.setTabEnabled(1, True)
             self.setCurrentIndex(1)
+            self.user_select_error.hide()
+        else:
+            self.user_select_error.show()
 
     @pyqtSlot()
     def file_select_button(self):
