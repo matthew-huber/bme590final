@@ -55,8 +55,9 @@ class App(QTabWidget):
         line_one_layout = QHBoxLayout()
         username_layout = QFormLayout()
         line_one_layout.addWidget(self.entered_username)
+        line_one_layout.addWidget(QLabel("Or select from existing users:"))
         line_one_layout.addWidget(self.existing_users)
-        username_layout.addRow("Username", line_one_layout)
+        username_layout.addRow("Enter Username", line_one_layout)
 
         layout.addRow(username_layout)
 
@@ -126,14 +127,11 @@ class App(QTabWidget):
         self.tab2.setLayout(tab2layout)
 
     def changed_tab(self, i):
-        #if i == 0:
-            #user_list = requests.get("http://0.0.0.0:5000/user_list")
-        """
-
-        :param i:
-        :return:
-        """
-
+        if i == 0:
+            self.existing_users.clear()
+            user_list = requests.get("http://127.0.0.1:5000/user_list")
+            user_list = user_list.json()
+            self.existing_users.addItems(user_list)
 
     def download_image(self):
         """Download image
@@ -267,7 +265,7 @@ class App(QTabWidget):
             image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
-        r2 = requests.post("http://0.0.0.0:5000/upload", json={
+        r2 = requests.post("http://127.0.0.1:5000/upload", json={
             "Images": images_base64,
             "Process": process,
             "User": self.username,
@@ -276,7 +274,7 @@ class App(QTabWidget):
         })
         time.sleep(2)
         global content
-        content = requests.get("http://0.0.0.0:5000/download")
+        content = requests.get("http://127.0.0.1:5000/download")
         content = content.json()
         unpack_server_info(content)
         self.insert_processed_image(s5[0])
