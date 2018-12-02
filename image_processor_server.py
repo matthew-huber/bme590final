@@ -27,6 +27,15 @@ def server_gui():
     return r
 
 
+@app.route("/user_list", methods=["GET"])
+def user_list():
+    list_of_users = []
+    for image in DB_Image_Meta.objects.all():
+        if image.user not in list_of_users:
+            list_of_users.append(image.user)
+    return jsonify(list_of_users)
+
+
 @app.route("/upload", methods=['POST'])
 def gui_server():
     r = request.get_json()

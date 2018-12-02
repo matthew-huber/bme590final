@@ -24,7 +24,12 @@ class App(QTabWidget):
         self.orig_image = QLabel("")
         self.proc_image = QLabel("")
 
+        # tab1
         self.entered_username = QLineEdit()
+        self.user_select = QComboBox(self)
+        self.user_select_error = QLabel("No user entered or selected")
+
+        # tab2
         self.procbox = QComboBox(self)
         self.download_box = QComboBox(self)
         self.orig_next_button = QPushButton('Next Image >>')
@@ -32,6 +37,7 @@ class App(QTabWidget):
         self.download_button = QPushButton('Download', self)
         self.processor_button = QPushButton('Process', self)
 
+        self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
         self.setTabEnabled(1, False)
@@ -47,13 +53,23 @@ class App(QTabWidget):
 
     def tab1UI(self):
         layout = QFormLayout()
-        layout.addRow("Username", self.entered_username)
+        line_one_layout = QHBoxLayout()
+        username_layout = QFormLayout()
+        line_one_layout.addWidget(self.entered_username)
+        line_one_layout.addWidget(QLabel("Or select from existing users:"))
+        line_one_layout.addWidget(self.user_select)
+        username_layout.addRow("Enter Username", line_one_layout)
+
+        layout.addRow(username_layout)
+
         enter_button = QHBoxLayout()
         user_button = QPushButton("Enter")
         user_button.setToolTip("Enter username")
         user_button.clicked.connect(self.update_username)
         enter_button.addWidget(user_button)
         layout.addRow(enter_button)
+        layout.addRow(self.user_select_error)
+        self.user_select_error.hide()
         self.tab1.setLayout(layout)
 
     def tab2UI(self):
@@ -113,6 +129,14 @@ class App(QTabWidget):
 
         self.tab2.setLayout(tab2layout)
 
+    def changed_tab(self, i):
+        if i == 0:
+            self.user_select.clear()
+            user_list = requests.get("http://0.0.0.0:5000/user_list")
+            user_list = user_list.json()
+            user_list.insert(0, "Select:")
+            self.user_select.addItems(user_list)
+
     def download_image(self):
         """Download image
         """
@@ -133,8 +157,16 @@ class App(QTabWidget):
 
     def update_username(self):
         self.username = self.entered_username.text()
-        self.setTabEnabled(1, True)
-        self.setCurrentIndex(1)
+        dropdown_text = self.user_select.currentText()
+
+        if self.username != "" or dropdown_text != "Select:":
+            if self.username == "":
+                self.username = dropdown_text
+            self.setTabEnabled(1, True)
+            self.setCurrentIndex(1)
+            self.user_select_error.hide()
+        else:
+            self.user_select_error.show()
 
     @pyqtSlot()
     def file_select_button(self):
