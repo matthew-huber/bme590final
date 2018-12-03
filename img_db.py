@@ -22,4 +22,4 @@ class DB_Image_Meta(MongoModel):
     original_width = fields.IntegerField()
     processed_height = fields.ListField(field=fields.IntegerField())
     processed_width = fields.ListField(field=fields.IntegerField())
-    upload_timestamp = fields.ListField(field=fields.CharField())
+    upload_timestamp = fields.DateTimeField()

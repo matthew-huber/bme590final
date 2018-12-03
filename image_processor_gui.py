@@ -132,7 +132,7 @@ class App(QTabWidget):
     def changed_tab(self, i):
         if i == 0:
             self.user_select.clear()
-            user_list = requests.get("http://0.0.0.0:5000/user_list")
+            user_list = requests.get("http://127.0.0.1:5000/user_list")
             user_list = user_list.json()
             user_list.insert(0, "Select:")
             self.user_select.addItems(user_list)
@@ -276,7 +276,7 @@ class App(QTabWidget):
             image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
-        r2 = requests.post("http://0.0.0.0:5000/upload", json={
+        r2 = requests.post("http://127.0.0.1:5000/upload", json={
             "Images": images_base64,
             "Process": process,
             "User": self.username,
@@ -285,7 +285,7 @@ class App(QTabWidget):
         })
         time.sleep(2)
         global content
-        content = requests.get("http://0.0.0.0:5000/download")
+        content = requests.get("http://127.0.0.1:5000/download")
         content = content.json()
         unpack_server_info(content)
         self.insert_processed_image(s5[0])
