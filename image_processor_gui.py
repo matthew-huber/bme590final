@@ -21,6 +21,7 @@ class App(QTabWidget):
         self.username = ""
         self.tab1 = QWidget()
         self.tab2 = QWidget()
+        self.tab3 = QWidget()
         self.orig_image = QLabel("")
         self.proc_image = QLabel("")
 
@@ -37,12 +38,24 @@ class App(QTabWidget):
         self.download_button = QPushButton('Download', self)
         self.processor_button = QPushButton('Process', self)
 
+        # tab3
+        self.users_images = QListWidget()
+        self.image_filename = QLabel("Sample")
+        self.image_pixels = QLabel("Sample")
+        self.date_processed = QLabel("Sample")
+        self.processing_time = QLabel("Sample")
+        self.process_done = QLabel("Sample")
+        self.remove_image = QPushButton("Remove Image", self)
+
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
+        self.addTab(self.tab3, "Manage Images")
         self.setTabEnabled(1, False)
+        self.setTabEnabled(2, False)
         self.tab1UI()
         self.tab2UI()
+        self.tab3UI()
 
         self.left = 100
         self.top = 100
@@ -129,6 +142,29 @@ class App(QTabWidget):
 
         self.tab2.setLayout(tab2layout)
 
+
+ #       self.users_images = QListWidget()
+ #       self.image_pixels = QLabel()
+ #       self.date_processed = QLabel()
+ #       self.processing_time = QLabel()
+ #       self.process_done = QLabel()
+ #       self.remove_image = QPushButton()
+
+    def tab3UI(self):
+        layout = QHBoxLayout()
+        layout.addWidget(self.users_images)
+
+        metadata_layout = QFormLayout()
+        metadata_layout.addRow("Image Filename: ", self.image_filename)
+        metadata_layout.addRow("Pixel Size: ", self.image_pixels)
+        metadata_layout.addRow("Latest Process Done: ", self.process_done)
+        metadata_layout.addRow("Date Processed: ", self.date_processed)
+        metadata_layout.addRow("Time to Process: ", self.processing_time)
+        metadata_layout.addRow(self.remove_image)
+
+        layout.addLayout(metadata_layout)
+        self.tab3.setLayout(layout)
+
     def changed_tab(self, i):
         if i == 0:
             self.user_select.clear()
@@ -163,6 +199,7 @@ class App(QTabWidget):
             if self.username == "":
                 self.username = dropdown_text
             self.setTabEnabled(1, True)
+            self.setTabEnabled(2, True)
             self.setCurrentIndex(1)
             self.user_select_error.hide()
         else:
