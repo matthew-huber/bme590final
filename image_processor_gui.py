@@ -41,12 +41,14 @@ class App(QTabWidget):
         # tab3
         self.users_images = QListWidget()
         self.users_images.itemClicked.connect(self.load_image_data)
-        self.image_filename = QLabel("Sample")
-        self.image_pixels = QLabel("Sample")
-        self.date_upload = QLabel("Sample")
-        self.processing_time = QLabel("Sample")
-        self.process_done = QLabel("Sample")
+        self.image_filename = QLabel("")
+        self.image_pixels = QLabel("")
+        self.date_upload = QLabel("")
+        self.processing_time = QLabel("")
+        self.process_done = QLabel("")
         self.remove_image = QPushButton("Remove Image", self)
+        self.remove_image.setEnabled(False)
+
 
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
@@ -154,6 +156,7 @@ class App(QTabWidget):
         metadata_layout.addRow("Date Uploaded: ", self.date_upload)
         metadata_layout.addRow("Time to Process: ", self.processing_time)
         metadata_layout.addRow(self.remove_image)
+        self.remove_image.clicked.connect(self.delete_image)
 
         layout.addLayout(metadata_layout)
         self.tab3.setLayout(layout)
@@ -166,12 +169,22 @@ class App(QTabWidget):
             user_list.insert(0, "Select:")
             self.user_select.addItems(user_list)
         if i == 2:
-            self.users_images.clear()
-            get_images = requests.get("http://127.0.0.1:5000/get_images/" + self.username)
-            get_users_images = get_images.json()
-            self.users_images.addItems(get_users_images)
+            self.update_image_list()
+
+    def update_image_list(self):
+        self.users_images.clear()
+        get_images = requests.get("http://127.0.0.1:5000/get_images/" + self.username)
+        get_users_images = get_images.json()
+        self.users_images.addItems(get_users_images)
+        self.remove_image.setEnabled(False)
+
+    def delete_image(self):
+        filename = self.users_images.currentItem().text()
+        delete = requests.get("http://127.0.0.1:5000/delete_image/" + filename)
+        self.update_image_list()
 
     def load_image_data(self, current):
+        self.remove_image.setEnabled(True)
         filename = current.text()
         image_metadata = requests.get("http://127.0.0.1:5000/image_data/" + filename)
         image_metadata = image_metadata.json()

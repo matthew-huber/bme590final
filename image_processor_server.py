@@ -22,7 +22,6 @@ def get_images(user):
 def get_image_data(filename):
     image_data = {}
     for image in DB_Image_Meta.objects.raw({"_id": filename}):
-#        image_data["image_pixels"] = image.processed_width[-1]
         image_data["process_done"] = image.processing_types[-1]
         upload_date = image.upload_timestamp
         upload_date = upload_date.strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -30,12 +29,14 @@ def get_image_data(filename):
         image_data["process_times"] = image.processing_times[-1]
         image_data["image_pixels"] = str(image.processed_width[-1]) + \
                                      " x " + str(image.processed_height[-1])
-#        image_data["process_done"] = image.processing_types[-1]
-#        upload_date = image.upload_timestamp
-#        upload_date = upload_date.strftime("%Y-%m-%d %H:%M:%S.%f")
-#        image_data["upload_date"] = upload_date
-#        image_data["process_times"] = str(image.processing_times[-1])
     return jsonify(image_data)
+
+
+@app.route("/delete_image/<filename>", methods=["GET"])
+def delete_image(filename):
+    DB_Image_Meta.objects.raw({"_id": filename}).delete()
+
+    return jsonify({"status": "true"})
 
 
 @app.route("/download", methods=["GET"])
