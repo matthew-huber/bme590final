@@ -115,14 +115,13 @@ def addImagesToDatabase():
         original_width = OG_width[x]
         proc_height = processed_height[x]
         proc_width = processed_width[x]
-        upload_timestamp = s3
+        upload_timestamp = s3[x]
 
-        try:
-            # check to see if the image already exists
+        query_set = DB_Image_Meta.objects.raw({"_id": file_path})
+        if query_set.count() > 0:
             db_img = DB_Image_Meta.objects.raw({"_id": file_path}).first()
-        except:
-            # Make a new one if an exception was raised (assuming that
-            # exception means that image does not currently exist.)
+
+        else:
             db_img = DB_Image_Meta(img_file_path=file_path,
                                    user=user,
                                    original_height=original_height,
@@ -210,4 +209,4 @@ def encodeImage(img):
     return base64_string
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="127.0.0.1")
