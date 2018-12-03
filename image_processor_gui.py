@@ -40,10 +40,10 @@ class App(QTabWidget):
 
         # tab3
         self.users_images = QListWidget()
-        self.users_images.curretItemChanged.connect(self.load_image_data)
+        self.users_images.itemClicked.connect(self.load_image_data)
         self.image_filename = QLabel("Sample")
         self.image_pixels = QLabel("Sample")
-        self.date_processed = QLabel("Sample")
+        self.date_upload = QLabel("Sample")
         self.processing_time = QLabel("Sample")
         self.process_done = QLabel("Sample")
         self.remove_image = QPushButton("Remove Image", self)
@@ -151,7 +151,7 @@ class App(QTabWidget):
         metadata_layout.addRow("Image Filename: ", self.image_filename)
         metadata_layout.addRow("Pixel Size: ", self.image_pixels)
         metadata_layout.addRow("Latest Process Done: ", self.process_done)
-        metadata_layout.addRow("Date Processed: ", self.date_processed)
+        metadata_layout.addRow("Date Uploaded: ", self.date_upload)
         metadata_layout.addRow("Time to Process: ", self.processing_time)
         metadata_layout.addRow(self.remove_image)
 
@@ -167,20 +167,21 @@ class App(QTabWidget):
             self.user_select.addItems(user_list)
         if i == 2:
             self.users_images.clear()
-            get_images = requests.get("http://127.0.0.1:5000/get_images")
+            get_images = requests.get("http://127.0.0.1:5000/get_images/" + self.username)
             get_users_images = get_images.json()
-            self.users_images.addItems(get_images)
+            self.users_images.addItems(get_users_images)
 
-    def load_image_data(self):
-        filename = self.users_images.text()
-        image_metadata = requests.get("http://127.0.0.1:5000/get_image_data")
+    def load_image_data(self, current):
+        filename = current.text()
+        image_metadata = requests.get("http://127.0.0.1:5000/image_data/" + filename)
         image_metadata = image_metadata.json()
 
-        self.image_filename.setText(filename)
-        self.image_pixels.setText(image_metadata["image_pixels"])
-        self.process_done.setText(image_metadata["process_done"])
-        self.date_processed.setText(image_metadata["date_processed"])
-        self.process_time.setText(image_metadata["process_time"])
+        self.image_filename.setText(str(filename))
+        self.image_pixels.setText(str(image_metadata["image_pixels"]))
+        print(image_metadata["image_pixels"])
+        self.process_done.setText(str(image_metadata["process_done"]))
+        self.date_upload.setText(str(image_metadata["date_upload"]))
+        self.processing_time.setText(str(image_metadata["process_times"]))
 
     def download_image(self):
         """Download image
