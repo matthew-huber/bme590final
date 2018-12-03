@@ -251,7 +251,13 @@ class App(QTabWidget):
                                              "*.tiff);; ICO (*.ICO *.ico)"
                                              "ZIP (*.zip)",
                                              options=options)
-
+        filenames = []
+        for i in range(len(fn)):
+            filename = fn[i]
+            print(filename)
+            filename = filename.split("/")[-1]
+            filenames.append(filename)
+            print(filenames)
         if fn:
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
@@ -332,9 +338,12 @@ class App(QTabWidget):
         images_base64 = []
         process = self.procbox.currentText()
         filenames = []
-        for i in range(np.size(fn)):
+        for i in range(len(fn)):
             filename = fn[i]
-            filenames = filename.rsplit('/', 1)[-1]
+            print(filename)
+            filename = filename.split("/")[-1]
+            filenames.append(filename)
+            print(filenames)
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
