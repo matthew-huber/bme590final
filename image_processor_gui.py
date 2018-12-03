@@ -50,7 +50,6 @@ class App(QTabWidget):
         self.remove_image = QPushButton("Remove Image", self)
         self.remove_image.setEnabled(False)
 
-
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
@@ -174,20 +173,23 @@ class App(QTabWidget):
 
     def update_image_list(self):
         self.users_images.clear()
-        get_images = requests.get("http://127.0.0.1:5000/get_images/" + self.username)
+        request_url = "http://127.0.0.1:5000/get_images/" + self.username
+        get_images = requests.get(request_url)
         get_users_images = get_images.json()
         self.users_images.addItems(get_users_images)
         self.remove_image.setEnabled(False)
 
     def delete_image(self):
         filename = self.users_images.currentItem().text()
-        delete = requests.get("http://127.0.0.1:5000/delete_image/" + filename)
+        request_url = "http://127.0.0.1:5000/delete_image/" + filename
+        delete = requests.get(request_url)
         self.update_image_list()
 
     def load_image_data(self, current):
         self.remove_image.setEnabled(True)
         filename = current.text()
-        image_metadata = requests.get("http://127.0.0.1:5000/image_data/" + filename)
+        request_url = "http://127.0.0.1:5000/image_data/" + filename
+        image_metadata = requests.get(request_url)
         image_metadata = image_metadata.json()
 
         self.image_filename.setText(str(filename))

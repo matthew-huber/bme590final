@@ -27,8 +27,9 @@ def get_image_data(filename):
         upload_date = upload_date.strftime("%Y-%m-%d %H:%M:%S.%f")
         image_data["date_upload"] = upload_date
         image_data["process_times"] = image.processing_times[-1]
-        image_data["image_pixels"] = str(image.processed_width[-1]) + \
-                                     " x " + str(image.processed_height[-1])
+        px = str(image.processed_width[-1]) + " x "
+        px = px + str(image.processed_height[-1])
+        image_data["image_pixels"] = px
     return jsonify(image_data)
 
 
