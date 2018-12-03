@@ -36,6 +36,4 @@ def test_getImageCharacteristics(img, height, width):
     (b'0101110', "MDEwMTExMA==")
 ])
 def test_encodeImage(img, base64_string):
-    print(encodeImage(img))
-    print(base64_string)
     assert encodeImage(img) == base64_string
