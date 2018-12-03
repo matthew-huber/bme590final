@@ -10,6 +10,36 @@ import json
 app = Flask(__name__)
 
 
+@app.route("/get_images/<user>", methods=["GET"])
+def get_images(user):
+    image_list = []
+    for image in DB_Image_Meta.objects.raw({"user": user}):
+        image_list.append(image.img_file_path)
+    return jsonify(image_list)
+
+
+@app.route("/image_data/<filename>", methods=["GET"])
+def get_image_data(filename):
+    image_data = {}
+    for image in DB_Image_Meta.objects.raw({"_id": filename}):
+        image_data["process_done"] = image.processing_types[-1]
+        upload_date = image.upload_timestamp
+        upload_date = upload_date.strftime("%Y-%m-%d %H:%M:%S.%f")
+        image_data["date_upload"] = upload_date
+        image_data["process_times"] = image.processing_times[-1]
+        px = str(image.processed_width[-1]) + " x "
+        px = px + str(image.processed_height[-1])
+        image_data["image_pixels"] = px
+    return jsonify(image_data)
+
+
+@app.route("/delete_image/<filename>", methods=["GET"])
+def delete_image(filename):
+    DB_Image_Meta.objects.raw({"_id": filename}).delete()
+
+    return jsonify({"status": "true"})
+
+
 @app.route("/download", methods=["GET"])
 def server_gui():
     return_data = {

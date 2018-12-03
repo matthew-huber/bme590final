@@ -12,6 +12,7 @@ import time
 import ast
 import matplotlib.image as mpimg
 import io
+import numpy as np
 
 
 class App(QTabWidget):
@@ -21,6 +22,7 @@ class App(QTabWidget):
         self.username = ""
         self.tab1 = QWidget()
         self.tab2 = QWidget()
+        self.tab3 = QWidget()
         self.orig_image = QLabel("")
         self.proc_image = QLabel("")
 
@@ -37,12 +39,26 @@ class App(QTabWidget):
         self.download_button = QPushButton('Download', self)
         self.processor_button = QPushButton('Process', self)
 
+        # tab3
+        self.users_images = QListWidget()
+        self.users_images.itemClicked.connect(self.load_image_data)
+        self.image_filename = QLabel("")
+        self.image_pixels = QLabel("")
+        self.date_upload = QLabel("")
+        self.processing_time = QLabel("")
+        self.process_done = QLabel("")
+        self.remove_image = QPushButton("Remove Image", self)
+        self.remove_image.setEnabled(False)
+
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
+        self.addTab(self.tab3, "Manage Images")
         self.setTabEnabled(1, False)
+        self.setTabEnabled(2, False)
         self.tab1UI()
         self.tab2UI()
+        self.tab3UI()
 
         self.left = 100
         self.top = 100
@@ -129,6 +145,22 @@ class App(QTabWidget):
 
         self.tab2.setLayout(tab2layout)
 
+    def tab3UI(self):
+        layout = QHBoxLayout()
+        layout.addWidget(self.users_images)
+
+        metadata_layout = QFormLayout()
+        metadata_layout.addRow("Image Filename: ", self.image_filename)
+        metadata_layout.addRow("Pixel Size: ", self.image_pixels)
+        metadata_layout.addRow("Latest Process Done: ", self.process_done)
+        metadata_layout.addRow("Date Uploaded: ", self.date_upload)
+        metadata_layout.addRow("Time to Process: ", self.processing_time)
+        metadata_layout.addRow(self.remove_image)
+        self.remove_image.clicked.connect(self.delete_image)
+
+        layout.addLayout(metadata_layout)
+        self.tab3.setLayout(layout)
+
     def changed_tab(self, i):
         if i == 0:
             self.user_select.clear()
@@ -136,6 +168,36 @@ class App(QTabWidget):
             user_list = user_list.json()
             user_list.insert(0, "Select:")
             self.user_select.addItems(user_list)
+        if i == 2:
+            self.update_image_list()
+
+    def update_image_list(self):
+        self.users_images.clear()
+        request_url = "http://127.0.0.1:5000/get_images/" + self.username
+        get_images = requests.get(request_url)
+        get_users_images = get_images.json()
+        self.users_images.addItems(get_users_images)
+        self.remove_image.setEnabled(False)
+
+    def delete_image(self):
+        filename = self.users_images.currentItem().text()
+        request_url = "http://127.0.0.1:5000/delete_image/" + filename
+        delete = requests.get(request_url)
+        self.update_image_list()
+
+    def load_image_data(self, current):
+        self.remove_image.setEnabled(True)
+        filename = current.text()
+        request_url = "http://127.0.0.1:5000/image_data/" + filename
+        image_metadata = requests.get(request_url)
+        image_metadata = image_metadata.json()
+
+        self.image_filename.setText(str(filename))
+        self.image_pixels.setText(str(image_metadata["image_pixels"]))
+        print(image_metadata["image_pixels"])
+        self.process_done.setText(str(image_metadata["process_done"]))
+        self.date_upload.setText(str(image_metadata["date_upload"]))
+        self.processing_time.setText(str(image_metadata["process_times"]))
 
     def download_image(self):
         """Download image
@@ -163,6 +225,7 @@ class App(QTabWidget):
             if self.username == "":
                 self.username = dropdown_text
             self.setTabEnabled(1, True)
+            self.setTabEnabled(2, True)
             self.setCurrentIndex(1)
             self.user_select_error.hide()
         else:
@@ -190,6 +253,13 @@ class App(QTabWidget):
                                              "*.tiff);; ICO (*.ICO *.ico)"
                                              "ZIP (*.zip)",
                                              options=options)
+        filenames = []
+        for i in range(len(fn)):
+            filename = fn[i]
+            print(filename)
+            filename = filename.split("/")[-1]
+            filenames.append(filename)
+            print(filenames)
         if fn:
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
@@ -269,6 +339,13 @@ class App(QTabWidget):
     def process_server(self):
         images_base64 = []
         process = self.procbox.currentText()
+        filenames = []
+        for i in range(len(fn)):
+            filename = fn[i]
+            print(filename)
+            filename = filename.split("/")[-1]
+            filenames.append(filename)
+            print(filenames)
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
@@ -281,7 +358,7 @@ class App(QTabWidget):
             "Process": process,
             "User": self.username,
             "Timestamps": timestamps,
-            "FileNames": fn,
+            "FileNames": filenames,
         })
         time.sleep(2)
         global content
