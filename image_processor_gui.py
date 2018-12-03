@@ -12,6 +12,7 @@ import time
 import ast
 import matplotlib.image as mpimg
 import io
+import numpy as np
 
 
 class App(QTabWidget):
@@ -250,6 +251,7 @@ class App(QTabWidget):
                                              "*.tiff);; ICO (*.ICO *.ico)"
                                              "ZIP (*.zip)",
                                              options=options)
+
         if fn:
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
@@ -329,6 +331,10 @@ class App(QTabWidget):
     def process_server(self):
         images_base64 = []
         process = self.procbox.currentText()
+        filenames = []
+        for i in range(np.size(fn)):
+            filename = fn[i]
+            filenames = filename.rsplit('/', 1)[-1]
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
@@ -341,7 +347,7 @@ class App(QTabWidget):
             "Process": process,
             "User": self.username,
             "Timestamps": timestamps,
-            "FileNames": fn,
+            "FileNames": filenames,
         })
         time.sleep(2)
         global content
