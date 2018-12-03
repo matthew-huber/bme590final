@@ -31,9 +31,10 @@ def test_getImageCharacteristics(img, height, width):
 
 
 @pytest.mark.parametrize("img, base64_string", [
-    (np.array(1), "AQAAAA==")
+    # (np.array(1), "AQAAAA==")
     # (np.array([1, 2]), "AQAAAAIAAAA="),
     # (np.array([1, 2, 300]), "AQAAAAIAAAAsAQAA")
+    (b'010101010111', "MDEwMTAxMDEwMTEx")
 ])
 def test_encodeImage(img, base64_string):
     print(encodeImage(img))
