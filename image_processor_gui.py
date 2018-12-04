@@ -12,7 +12,6 @@ import time
 import ast
 import matplotlib.image as mpimg
 import io
-import numpy as np
 
 
 class App(QTabWidget):
@@ -194,7 +193,6 @@ class App(QTabWidget):
 
         self.image_filename.setText(str(filename))
         self.image_pixels.setText(str(image_metadata["image_pixels"]))
-        print(image_metadata["image_pixels"])
         self.process_done.setText(str(image_metadata["process_done"]))
         self.date_upload.setText(str(image_metadata["date_upload"]))
         self.processing_time.setText(str(image_metadata["process_times"]))
@@ -256,10 +254,8 @@ class App(QTabWidget):
         filenames = []
         for i in range(len(fn)):
             filename = fn[i]
-            print(filename)
             filename = filename.split("/")[-1]
             filenames.append(filename)
-            print(filenames)
         if fn:
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
@@ -282,7 +278,6 @@ class App(QTabWidget):
                     fn[0] = filename
                     z.extractall(os.path.dirname(os.path.realpath(__file__)))
             input_image = imread(fn[0])
-            print(type(input_image))
             image_shape = input_image.shape
             width = image_shape[1]
             height = image_shape[0]
@@ -342,14 +337,11 @@ class App(QTabWidget):
         filenames = []
         for i in range(len(fn)):
             filename = fn[i]
-            print(filename)
             filename = filename.split("/")[-1]
             filenames.append(filename)
-            print(filenames)
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
-                print(type(image_bytes))
             image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
@@ -409,6 +401,7 @@ def decodeImage(byte_img):
     :param byte_img:
     :return:
     """
+
     image_buf = io.BytesIO(byte_img)
 
     i = mpimg.imread(image_buf, format='JPG')

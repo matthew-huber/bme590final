@@ -9,3 +9,4 @@ pymodm
 requests
 matplotlib
 numpy
+opencv-python
