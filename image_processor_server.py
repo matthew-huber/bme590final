@@ -8,6 +8,7 @@ from img_db import DB_Image_Meta
 import json
 import cv2
 
+
 app = Flask(__name__)
 
 
