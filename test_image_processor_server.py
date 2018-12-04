@@ -30,10 +30,10 @@ def test_getImageCharacteristics(img, height, width):
     assert img_char["width"] == width
 
 
-@pytest.mark.parametrize("img, base64_string", [
-    (b'010101010111', "MDEwMTAxMDEwMTEx"),
-    (b'0101', "MDEwMQ=="),
-    (b'0101110', "MDEwMTExMA==")
-])
-def test_encodeImage(img, base64_string):
-    assert encodeImage(img) == base64_string
+# @pytest.mark.parametrize("img, base64_string", [
+    # (b'010101010111', "MDEwMTAxMDEwMTEx"),
+    # (b'0101', "MDEwMQ=="),
+    # (b'0101110', "MDEwMTExMA==")
+# ])
+# def test_encodeImage(img, base64_string):
+    # assert encodeImage(img) == base64_string
