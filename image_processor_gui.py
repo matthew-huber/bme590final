@@ -183,7 +183,8 @@ class App(QTabWidget):
 
     def delete_image(self):
         filename = self.users_images.currentItem().text()
-        request_url = "http://127.0.0.1:5000/delete_image/" + filename + self.username
+        url_end = filename + self.username
+        request_url = "http://127.0.0.1:5000/delete_image/" + url_end
         delete = requests.get(request_url)
         self.update_image_list()
 
@@ -196,7 +197,8 @@ class App(QTabWidget):
     def load_image_data(self, current):
         self.remove_image.setEnabled(True)
         filename = current.text()
-        request_url = "http://127.0.0.1:5000/image_data/" + filename + self.username
+        url_end = filename + self.username
+        request_url = "http://127.0.0.1:5000/image_data/" + url_end
         image_metadata = requests.get(request_url)
         image_metadata = image_metadata.json()
 
