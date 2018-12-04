@@ -174,20 +174,31 @@ class App(QTabWidget):
         self.users_images.clear()
         request_url = "http://127.0.0.1:5000/get_images/" + self.username
         get_images = requests.get(request_url)
-        get_users_images = get_images.json()
+        get_users_images_list = get_images.json()
+        get_users_images = []
+        for item in get_users_images_list:
+            get_users_images.append(item[0:(len(item)-len(self.username))])
         self.users_images.addItems(get_users_images)
         self.remove_image.setEnabled(False)
 
     def delete_image(self):
         filename = self.users_images.currentItem().text()
-        request_url = "http://127.0.0.1:5000/delete_image/" + filename
+        url_end = filename + self.username
+        request_url = "http://127.0.0.1:5000/delete_image/" + url_end
         delete = requests.get(request_url)
         self.update_image_list()
+
+        self.image_filename.setText("")
+        self.image_pixels.setText("")
+        self.process_done.setText("")
+        self.date_upload.setText("")
+        self.processing_time.setText("")
 
     def load_image_data(self, current):
         self.remove_image.setEnabled(True)
         filename = current.text()
-        request_url = "http://127.0.0.1:5000/image_data/" + filename
+        url_end = filename + self.username
+        request_url = "http://127.0.0.1:5000/image_data/" + url_end
         image_metadata = requests.get(request_url)
         image_metadata = image_metadata.json()
 
@@ -251,11 +262,7 @@ class App(QTabWidget):
                                              "*.tiff);; ICO (*.ICO *.ico)"
                                              "ZIP (*.zip)",
                                              options=options)
-        filenames = []
-        for i in range(len(fn)):
-            filename = fn[i]
-            filename = filename.split("/")[-1]
-            filenames.append(filename)
+
         if fn:
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
@@ -338,7 +345,7 @@ class App(QTabWidget):
         for i in range(len(fn)):
             filename = fn[i]
             filename = filename.split("/")[-1]
-            filenames.append(filename)
+            filenames.append(filename+self.username)
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
