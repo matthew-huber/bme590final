@@ -288,19 +288,7 @@ class App(QTabWidget):
             image_shape = input_image.shape
             width = image_shape[1]
             height = image_shape[0]
-            if len(image_shape) < 3:
-                channels = 1
-                bytesPerLine = channels * width
-                qImg = QtGui.QImage(input_image.data, width, height,
-                                    bytesPerLine,
-                                    QtGui.QImage.Format_Grayscale8)
-            else:
-                channels = image_shape[2]
-                bytesPerLine = channels * width
-                qImg = QtGui.QImage(input_image.data, width, height,
-                                    bytesPerLine, QtGui.QImage.Format_RGB888)
-            pixmap01 = QtGui.QPixmap.fromImage(qImg)
-            pixmap_image = QtGui.QPixmap(pixmap01)
+            pixmap_image = QtGui.QPixmap(fn[0])
             pixmap_image_scaled = pixmap_image.scaledToHeight(240)
             self.orig_image.setPixmap(pixmap_image_scaled)
             self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
