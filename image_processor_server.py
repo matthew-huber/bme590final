@@ -6,6 +6,7 @@ import io
 import matplotlib.image as mpimg
 from img_db import DB_Image_Meta
 import json
+import cv2
 
 app = Flask(__name__)
 
@@ -104,6 +105,7 @@ def gui_server():
 
             start = time.time()
             processed_image = process(i, s2, pro)
+            enc_image = cv2.imencode('.jpg', processed_image)
             end = time.time()
 
             proc_time = end-start
@@ -114,7 +116,7 @@ def gui_server():
             proc_characteristics = getImageCharacteristics(processed_image)
             addImageCharacteristics(proc_characteristics, "processed")
 
-            encoded_proc_img = encodeImage(processed_image)
+            encoded_proc_img = encodeImage(enc_image[1])
             processed_images.append(encoded_proc_img)
 
         addImagesToDatabase()
@@ -234,7 +236,8 @@ def encodeImage(img):
     :param img:
     :return:
     """
-    processed_image_base64 = base64.b64encode(img)
+    bytes_img = img.tobytes()
+    processed_image_base64 = base64.b64encode(bytes_img)
     base64_string = processed_image_base64.decode('ascii')
     return base64_string
 
