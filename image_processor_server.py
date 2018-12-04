@@ -148,7 +148,7 @@ def addImagesToDatabase():
         original_width = OG_width[x]
         proc_height = processed_height[x]
         proc_width = processed_width[x]
-        upload_timestamp = s3[x]
+        upload_timestamp = s3[0]
 
         query_set = DB_Image_Meta.objects.raw({"_id": file_path})
         if query_set.count() > 0:
