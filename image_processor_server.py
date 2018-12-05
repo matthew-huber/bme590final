@@ -20,6 +20,14 @@ def get_images(user):
     return jsonify(image_list)
 
 
+@app.route("/processing_type/<filename>", methods=["GET"])
+def processing_type(filename):
+    image_data = {}
+    for image in DB_Image_Meta.objects.raw({"_id": filename}):
+        image_data["process_done"] = image.processing_types[-1]
+    return jsonify(image_data)
+
+
 @app.route("/image_data/<filename>", methods=["GET"])
 def get_image_data(filename):
     image_data = {}
