@@ -18,6 +18,9 @@ class App(QTabWidget):
     def __init__(self, parent=None):
         super(App, self).__init__(parent)
 
+        self.multiple_images = False
+        self.zipped_images = False
+
         self.username = ""
         self.tab1 = QWidget()
         self.tab2 = QWidget()
@@ -36,6 +39,7 @@ class App(QTabWidget):
         self.orig_next_button = QPushButton('Next Image >>')
         self.orig_prev_button = QPushButton('<< Prev Image')
         self.download_button = QPushButton('Download', self)
+        self.download_all_button = QPushButton('Download All', self)
         self.processor_button = QPushButton('Process', self)
 
         # tab3
@@ -106,16 +110,22 @@ class App(QTabWidget):
         self.download_box.setEditable(True)
         self.download_box.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
         self.download_box.lineEdit().setReadOnly(True)
-        self.download_box.addItems([".JPG", ".PNG", ".TIFF"])
+        self.download_box.addItems(["jpg", "png", "tiff"])
         tab2layout.addWidget(self.download_box, 0, 3)
 
+        download_buttons_layout = QHBoxLayout()
         self.download_button.setEnabled(False)
         self.download_button.setToolTip('Download image in selected format')
         self.download_button.clicked.connect(self.download_image)
-        tab2layout.addWidget(self.download_button, 1, 3)
+        self.download_all_button.setEnabled(False)
+        self.download_all_button.setToolTip('Download all in selected format')
+        self.download_all_button.clicked.connect(self.download_all_images)
+        download_buttons_layout.addWidget(self.download_button)
+        download_buttons_layout.addWidget(self.download_all_button)
+        tab2layout.addLayout(download_buttons_layout, 1, 3)
 
         self.processor_button.setEnabled(False)
-        self.processor_button.setToolTip('Send image to server for processing')
+        self.processor_button.setToolTip('Send image for processing')
         self.processor_button.clicked.connect(self.process_button)
         tab2layout.addWidget(self.processor_button, 2, 0)
 
@@ -211,6 +221,32 @@ class App(QTabWidget):
     def download_image(self):
         """Download image
         """
+        filetype = self.download_box.currentText()
+        filename = fn[0]
+        filename = filename.split("/")[-1]
+        url_end = filename + self.username
+        processing_type = "http://127.0.0.1:5000/processing_type/" + url_end
+        processing_type = requests.get(processing_type)
+        processing_type = processing_type.json()
+        processing_type = processing_type["process_done"]
+        filename = filename.split(".")[0]
+        filename = filename + "_" + processing_type + "." + filetype
+        value = self.pixmap_image_scaled.save(filename, filetype, 100)
+        return filename
+
+    def download_all_images(self):
+        """Download all images
+        """
+        filenames = []
+        for i in range(len(fn)):
+            filename = self.download_image()
+            filenames.append(filename)
+            self.orig_next_image()
+
+        if self.zipped_images:
+            ZipFile = zipfile.Zipfile("zipped_files.zip", "w")
+            for file in filenames:
+                ZipFile.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
     def orig_next_image(self):
         """next image
@@ -218,6 +254,10 @@ class App(QTabWidget):
         first_image = fn.pop(0)
         fn.append(first_image)
         self.insert_orig_image(fn)
+        if self.multiple_images:
+            first_proc_image = s5.pop(0)
+            s5.append(first_proc_image)
+            self.insert_processed_image(s5[0])
 
     def orig_prev_image(self):
         """prev image
@@ -225,6 +265,10 @@ class App(QTabWidget):
         last_image = fn.pop(-1)
         fn.insert(0, last_image)
         self.insert_orig_image(fn)
+        if self.multiple_images:
+            last_proc_image = s5.pop(-1)
+            s5.insert(0, last_proc_image)
+            self.insert_processed_image(s5[0])
 
     def update_username(self):
         self.username = self.entered_username.text()
@@ -250,20 +294,24 @@ class App(QTabWidget):
         global fn
         global timestamps
         timestamps = [0]
-        fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
-                                             "JPEG (*.JPEG *.jpeg *.JPG "
-                                             "*.jpg *.JPE *.jpe "
-                                             "*JFIF *.jfif);; "
-                                             "PNG (*.PNG *.png);; "
-                                             "GIF (*.GIF *.gif);; "
-                                             "Bitmap Files (*.BMP *.bmp"
-                                             " *.DIB *.dib);;"
-                                             " TIFF (*.TIF *.tif *.TIFF "
-                                             "*.tiff);; ICO (*.ICO *.ico)"
-                                             "ZIP (*.zip)",
-                                             options=options)
+        fn_got, _ = QFileDialog.getOpenFileNames(self, "Open Image Files", "",
+                                                 "JPEG (*.JPEG *.jpeg *.JPG "
+                                                 "*.jpg *.JPE *.jpe "
+                                                 "*JFIF *.jfif);; "
+                                                 "PNG (*.PNG *.png);; "
+                                                 "GIF (*.GIF *.gif);; "
+                                                 "Bitmap Files (*.BMP *.bmp"
+                                                 " *.DIB *.dib);;"
+                                                 " TIFF (*.TIF *.tif *.TIFF "
+                                                 "*.tiff);; ICO (*.ICO *.ico)"
+                                                 "ZIP (*.zip)",
+                                                 options=options)
 
-        if fn:
+        if fn_got:
+            fn = fn_got
+            self.proc_image.hide()
+            self.download_all_button.setEnabled(False)
+            self.download_button.setEnabled(False)
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
                 self.orig_next_button.setToolTip('View next image')
@@ -279,7 +327,9 @@ class App(QTabWidget):
 
     def insert_orig_image(self, fn):
         timestamps[0] = (str(datetime.now()))
+        self.zipped_images = False
         if zipfile.is_zipfile(fn[0]):
+            self.zipped_images = True
             z = zipfile.ZipFile(fn[0], "r")
             for filename in z.namelist():
                 fn[0] = filename
@@ -315,8 +365,8 @@ class App(QTabWidget):
                                 bytesPerLine, QtGui.QImage.Format_RGB888)
         pixmap01 = QtGui.QPixmap.fromImage(qImg)
         pixmap_image = QtGui.QPixmap(pixmap01)
-        pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-        self.proc_image.setPixmap(pixmap_image_scaled)
+        self.pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+        self.proc_image.setPixmap(self.pixmap_image_scaled)
         self.proc_image.setAlignment(QtCore.Qt.AlignCenter)
         self.proc_image.setScaledContents(True)
         self.proc_image.setMinimumSize(1, 1)
@@ -330,10 +380,17 @@ class App(QTabWidget):
         images_base64 = []
         process = self.procbox.currentText()
         filenames = []
+        if len(fn) > 1:
+            self.download_all_button.setEnabled(True)
+            self.multiple_images = True
+        else:
+            self.download_all_button.setEnabled(False)
+            self.multiple_images = False
         for i in range(len(fn)):
             filename = fn[i]
             filename = filename.split("/")[-1]
             filenames.append(filename+self.username)
+
         for x in range(len(fn)):
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
