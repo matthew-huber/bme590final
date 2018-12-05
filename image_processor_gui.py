@@ -278,35 +278,23 @@ class App(QTabWidget):
             self.insert_orig_image(fn)
 
     def insert_orig_image(self, fn):
-            timestamps[0] = (str(datetime.now()))
-            if zipfile.is_zipfile(fn[0]):
-                z = zipfile.ZipFile(fn[0], "r")
-                for filename in z.namelist():
-                    fn[0] = filename
-                    z.extractall(os.path.dirname(os.path.realpath(__file__)))
-            input_image = imread(fn[0])
-            image_shape = input_image.shape
-            width = image_shape[1]
-            height = image_shape[0]
-            if len(image_shape) < 3:
-                channels = 1
-                bytesPerLine = channels * width
-                qImg = QtGui.QImage(input_image.data, width, height,
-                                    bytesPerLine,
-                                    QtGui.QImage.Format_Grayscale8)
-            else:
-                channels = image_shape[2]
-                bytesPerLine = channels * width
-                qImg = QtGui.QImage(input_image.data, width, height,
-                                    bytesPerLine, QtGui.QImage.Format_RGB888)
-            pixmap01 = QtGui.QPixmap.fromImage(qImg)
-            pixmap_image = QtGui.QPixmap(pixmap01)
-            pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-            self.orig_image.setPixmap(pixmap_image_scaled)
-            self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
-            self.orig_image.setScaledContents(True)
-            self.orig_image.setMinimumSize(1, 1)
-            self.orig_image.show()
+        timestamps[0] = (str(datetime.now()))
+        if zipfile.is_zipfile(fn[0]):
+            z = zipfile.ZipFile(fn[0], "r")
+            for filename in z.namelist():
+                fn[0] = filename
+                z.extractall(os.path.dirname(os.path.realpath(__file__)))
+        input_image = imread(fn[0])
+        image_shape = input_image.shape
+        width = image_shape[1]
+        height = image_shape[0]
+        pixmap_image = QtGui.QPixmap(fn[0])
+        pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+        self.orig_image.setPixmap(pixmap_image_scaled)
+        self.orig_image.setAlignment(QtCore.Qt.AlignCenter)
+        self.orig_image.setScaledContents(True)
+        self.orig_image.setMinimumSize(1, 1)
+        self.orig_image.show()
 
     def insert_processed_image(self, processed_images):
         byte_image = base64.b64decode(processed_images)
