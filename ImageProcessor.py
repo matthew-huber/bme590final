@@ -16,7 +16,19 @@ class ImageProcessor:
         :param img: Image be processed
         :return: hist_eql_img: img after histogram equalization
         """
-        hist_eql_img = 255 * ski.exposure.equalize_hist(img)
+        hist_eql_img = np.array(np.zeros(img.shape))
+        if img.ndim >= 3:
+            for channel in range(img.shape[2]):
+                ch_hist_eql = ski.exposure.equalize_hist(img[:, :, channel])
+
+                hist_eql_img[:, :, channel] = ski.exposure.rescale_intensity(
+                    ch_hist_eql, out_range=(0, 255))
+        else:
+            hist_eql_img = ski.exposure.equalize_hist(img)
+            hist_eql_img = ski.exposure.rescale_intensity(hist_eql_img,
+                                                          out_range=(0, 255))
+
+        hist_eql_img = hist_eql_img.astype(np.uint8)
         return hist_eql_img
 
     def contrastStretch(self, img):
