@@ -294,18 +294,18 @@ class App(QTabWidget):
         global fn
         global timestamps
         timestamps = [0]
-        fn_got, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
-                                             "JPEG (*.JPEG *.jpeg *.JPG "
-                                             "*.jpg *.JPE *.jpe "
-                                             "*JFIF *.jfif);; "
-                                             "PNG (*.PNG *.png);; "
-                                             "GIF (*.GIF *.gif);; "
-                                             "Bitmap Files (*.BMP *.bmp"
-                                             " *.DIB *.dib);;"
-                                             " TIFF (*.TIF *.tif *.TIFF "
-                                             "*.tiff);; ICO (*.ICO *.ico)"
-                                             "ZIP (*.zip)",
-                                             options=options)
+        fn_got, _ = QFileDialog.getOpenFileNames(self, "Open Image Files", "",
+                                                 "JPEG (*.JPEG *.jpeg *.JPG "
+                                                 "*.jpg *.JPE *.jpe "
+                                                 "*JFIF *.jfif);; "
+                                                 "PNG (*.PNG *.png);; "
+                                                 "GIF (*.GIF *.gif);; "
+                                                 "Bitmap Files (*.BMP *.bmp"
+                                                 " *.DIB *.dib);;"
+                                                 " TIFF (*.TIF *.tif *.TIFF "
+                                                 "*.tiff);; ICO (*.ICO *.ico)"
+                                                 "ZIP (*.zip)",
+                                                 options=options)
 
         if fn_got:
             fn = fn_got
