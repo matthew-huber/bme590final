@@ -106,7 +106,7 @@ def gui_server():
 
             start = time.time()
             processed_image = process(i, s2, pro)
-            enc_image = cv2.imencode('.png', processed_image)
+            enc_image = cv2.imencode('.jpg', processed_image)
             end = time.time()
 
             proc_time = end-start
