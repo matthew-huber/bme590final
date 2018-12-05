@@ -214,7 +214,16 @@ class App(QTabWidget):
         """Download image
         """
         filetype = self.download_box.currentText()
-        value = self.pixmap_image_scaled.save("name", filetype, 100)
+        filename = fn[0]
+        filename = filename.split("/")[-1]
+        url_end = filename + self.username
+        processing_type = "http://127.0.0.1:5000/processing_type/" + url_end
+        processing_type = requests.get(processing_type)
+        processing_type = processing_type.json()
+        processing_type = processing_type["process_done"]
+        filename = filename.split(".")[0]
+        filename = filename + "_" + processing_type + "." + filetype
+        value = self.pixmap_image_scaled.save(filename, filetype, 100)
 
     def orig_next_image(self):
         """next image
@@ -262,7 +271,7 @@ class App(QTabWidget):
         global fn
         global timestamps
         timestamps = [0]
-        fn, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
+        fn_got, _ = QFileDialog.getOpenFileNames(self, "Select Image File(s)", "",
                                              "JPEG (*.JPEG *.jpeg *.JPG "
                                              "*.jpg *.JPE *.jpe "
                                              "*JFIF *.jfif);; "
@@ -275,7 +284,8 @@ class App(QTabWidget):
                                              "ZIP (*.zip)",
                                              options=options)
 
-        if fn:
+        if fn_got:
+            fn = fn_got
             self.proc_image.hide()
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
