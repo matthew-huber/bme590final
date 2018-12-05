@@ -399,7 +399,7 @@ def decodeImage(byte_img):
 
     image_buf = io.BytesIO(byte_img)
 
-    i = mpimg.imread(image_buf, format='JPG')
+    i = mpimg.imread(image_buf, format='PNG')
 
     return i
 

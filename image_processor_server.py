@@ -106,7 +106,7 @@ def gui_server():
 
             start = time.time()
             processed_image = process(i, s2, pro)
-            enc_image = cv2.imencode('.jpg', processed_image)
+            enc_image = cv2.imencode('.png', processed_image)
             end = time.time()
 
             proc_time = end-start
@@ -178,7 +178,8 @@ def process(img, proc_type, IP):
     :return:
     """
     if proc_type == "Histogram Equalization":
-        proc_img = IP.histogramEqualization(img)
+        proc_img_buf = IP.histogramEqualization(img)
+        proc_img = 255 * proc_img_buf
     elif proc_type == "Contrast Stretching":
         proc_img = IP.contrastStretch(img)
     elif proc_type == "Reverse Video":
