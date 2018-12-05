@@ -19,6 +19,7 @@ class App(QTabWidget):
         super(App, self).__init__(parent)
 
         self.multiple_images = False
+        self.zipped_images = False
 
         self.username = ""
         self.tab1 = QWidget()
@@ -231,13 +232,21 @@ class App(QTabWidget):
         filename = filename.split(".")[0]
         filename = filename + "_" + processing_type + "." + filetype
         value = self.pixmap_image_scaled.save(filename, filetype, 100)
+        return filename
 
     def download_all_images(self):
         """Download all images
         """
+        filenames = []
         for i in range(len(fn)):
-            self.download_image()
+            filename = self.download_image()
+            filenames.append(filename)
             self.orig_next_image()
+
+        if self.zipped_images:
+            ZipFile = zipfile.Zipfile("zipped_files.zip", "w")
+            for file in filenames:
+                ZipFile.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
     def orig_next_image(self):
         """next image
@@ -318,7 +327,9 @@ class App(QTabWidget):
 
     def insert_orig_image(self, fn):
         timestamps[0] = (str(datetime.now()))
+        self.zipped_images = False
         if zipfile.is_zipfile(fn[0]):
+            self.zipped_images = True
             z = zipfile.ZipFile(fn[0], "r")
             for filename in z.namelist():
                 fn[0] = filename
