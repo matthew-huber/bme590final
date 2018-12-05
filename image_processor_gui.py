@@ -38,6 +38,7 @@ class App(QTabWidget):
         self.orig_next_button = QPushButton('Next Image >>')
         self.orig_prev_button = QPushButton('<< Prev Image')
         self.download_button = QPushButton('Download', self)
+        self.download_all_button = QPushButton('Download All', self)
         self.processor_button = QPushButton('Process', self)
 
         # tab3
@@ -111,13 +112,19 @@ class App(QTabWidget):
         self.download_box.addItems(["jpg", "png", "tiff"])
         tab2layout.addWidget(self.download_box, 0, 3)
 
+        download_buttons_layout = QHBoxLayout()
         self.download_button.setEnabled(False)
         self.download_button.setToolTip('Download image in selected format')
         self.download_button.clicked.connect(self.download_image)
-        tab2layout.addWidget(self.download_button, 1, 3)
+        self.download_all_button.setEnabled(False)
+        self.download_all_button.setToolTip('Download all in selected format')
+        self.download_all_button.clicked.connect(self.download_all_images)
+        download_buttons_layout.addWidget(self.download_button)
+        download_buttons_layout.addWidget(self.download_all_button)
+        tab2layout.addLayout(download_buttons_layout, 1, 3)
 
         self.processor_button.setEnabled(False)
-        self.processor_button.setToolTip('Send image to server for processing')
+        self.processor_button.setToolTip('Send image for processing')
         self.processor_button.clicked.connect(self.process_button)
         tab2layout.addWidget(self.processor_button, 2, 0)
 
@@ -225,6 +232,10 @@ class App(QTabWidget):
         filename = filename + "_" + processing_type + "." + filetype
         value = self.pixmap_image_scaled.save(filename, filetype, 100)
 
+    def download_all_images(self):
+        """Download all images
+        """
+
     def orig_next_image(self):
         """next image
         """
@@ -287,6 +298,8 @@ class App(QTabWidget):
         if fn_got:
             fn = fn_got
             self.proc_image.hide()
+            self.download_all_button.setEnabled(False)
+            self.download_button.setEnabled(False)
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
                 self.orig_next_button.setToolTip('View next image')
@@ -354,8 +367,10 @@ class App(QTabWidget):
         process = self.procbox.currentText()
         filenames = []
         if len(fn) > 1:
+            self.download_all_button.setEnabled(True)
             self.multiple_images = True
         else:
+            self.download_all_button.setEnabled(False)
             self.multiple_images = False
         for i in range(len(fn)):
             filename = fn[i]
