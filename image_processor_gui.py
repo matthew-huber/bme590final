@@ -235,6 +235,9 @@ class App(QTabWidget):
     def download_all_images(self):
         """Download all images
         """
+        for i in range(len(fn)):
+            self.download_image()
+            self.orig_next_image()
 
     def orig_next_image(self):
         """next image
