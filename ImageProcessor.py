@@ -16,7 +16,7 @@ class ImageProcessor:
         :param img: Image be processed
         :return: hist_eql_img: img after histogram equalization
         """
-        hist_eql_img = ski.exposure.equalize_hist(img)
+        hist_eql_img = 255 * ski.exposure.equalize_hist(img)
         return hist_eql_img
 
     def contrastStretch(self, img):
