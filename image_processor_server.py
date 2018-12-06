@@ -53,8 +53,8 @@ def delete_image(filename):
 @app.route("/download", methods=["GET"])
 def server_gui():
     return_data = {
-        "OG Images": str(s1),
-        "Timestamps": str(s3),
+        "OG Images": str(IMAGES),
+        "Timestamps": str(TIMESTAMPS),
         "OG Height": str(OG_height),
         "OG Width": str(OG_width),
         "Processed Images": str(processed_images),
@@ -79,16 +79,16 @@ def user_list():
 @app.route("/upload", methods=['POST'])
 def gui_server():
     r = request.get_json()
-    global s1
-    global s2
-    global s3
-    global fn
-    global username
-    s1 = r.get("Images")
-    s2 = r.get("Process")
-    s3 = r.get("Timestamps")
-    fn = r.get("FileNames")
-    username = r.get("User")
+    global IMAGES
+    global PROCESSING_TYPE
+    global TIMESTAMPS
+    global FILENAMES
+    global USERNAME
+    IMAGES = r.get("Images")
+    PROCESSING_TYPE = r.get("Process")
+    TIMESTAMPS = r.get("Timestamps")
+    FILENAMES = r.get("FileNames")
+    USERNAME = r.get("User")
 
     check = data_validation(r)
 
@@ -107,13 +107,13 @@ def gui_server():
     OG_width = []
 
     if check:
-        for x in range(len(s1)):
+        for x in range(len(IMAGES)):
 
-            byte_image = base64.b64decode(s1[x])
+            byte_image = base64.b64decode(IMAGES[x])
             i = decodeImage(byte_image)
 
             start = time.time()
-            processed_image = process(i, s2, pro)
+            processed_image = process(i, PROCESSING_TYPE, pro)
             enc_image = cv2.imencode('.jpg', processed_image)
             end = time.time()
 
@@ -149,16 +149,16 @@ def addImagesToDatabase():
 
     :return: None
     """
-    for x in range(len(s1)):
-        file_path = fn[x]
-        user = username
+    for x in range(len(IMAGES)):
+        file_path = FILENAMES[x]
+        user = USERNAME
         processing_time = processing_times[x]
-        processing_type = s2
+        processing_type = PROCESSING_TYPE
         original_height = OG_height[x]
         original_width = OG_width[x]
         proc_height = processed_height[x]
         proc_width = processed_width[x]
-        upload_timestamp = s3[0]
+        upload_timestamp = TIMESTAMPS[0]
 
         query_set = DB_Image_Meta.objects.raw({"_id": file_path})
         if query_set.count() > 0:
