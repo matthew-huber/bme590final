@@ -404,31 +404,28 @@ class App(QTabWidget):
     def process_server(self):
         images_base64 = []
         process = self.procbox.currentText()
-        filenames = []
+
         if len(fn) > 1:
-            self.download_all_button.setEnabled(True)
-            self.multiple_images = True
-            self.zip_download.show()
+            self.enable_process_all_button()
         else:
-            self.download_all_button.setEnabled(False)
-            self.multiple_images = False
-            self.zip_download.hide()
-        for i in range(len(fn)):
-            filename = fn[i]
-            filename = filename.split("/")[-1]
-            filenames.append(filename+self.username)
+            self.disable_process_all_button()
+
+        filenames = self.get_filenames_remove_full_path(fn)
+        filenames = self.get_filenames_add_username(filenames, self.username)
 
         for x in range(len(fn)):
+
             if zipfile.is_zipfile(fn[x]):
                 self.zipped_images = True
-                z = zipfile.ZipFile(fn[x], "r")
-                for filename in z.namelist():
-                    filename = filename.split("/._")[-1]
-                    fn.append(filename)
-                    z.extractall(os.path.dirname(os.path.realpath(__file__)))
+                zfile = fn[x]
+                self.extractAndAppendZipFiles(zfile)
                 fn.pop(x)
-            with open(fn[x], "rb") as image_file:
-                image_bytes = image_file.read()
+
+            image_bytes = self.get_image_bytes(fn[x])
+
+
+
+
             image_base64 = base64.b64encode(image_bytes)
             base64_string = image_base64.decode('ascii')
             images_base64.append(base64_string)
@@ -445,6 +442,56 @@ class App(QTabWidget):
         content = content.json()
         unpack_server_info(content)
         self.insert_processed_image(PROCESSED_IMAGE[0])
+
+    def enable_process_all_button(self):
+        self.download_all_button.setEnabled(True)
+        self.multiple_images = True
+        self.zip_download.show()
+
+    def disable_process_all_button(self):
+        self.download_all_button.setEnabled(False)
+        self.multiple_images = False
+        self.zip_download.hide()
+
+    def get_filenames_remove_full_path(self, files):
+        """
+
+        :param files: list of files with paths
+        :return:
+        """
+        filenames = []
+        for i in range(len(files)):
+            filename = files[i]
+            filename = filename.split("/")[-1]
+            filenames.append(filename + self.username)
+        return filenames
+
+    def get_filenames_add_username(self, files, username):
+        """
+
+        :param files: List of file names
+        :param username:  Username to append
+        :return:
+        """
+
+        filenames = []
+        for file in files:
+            filenames.append(file + username)
+
+        return filenames
+
+    def extractAndAPpendZipFiles(zfile):
+        z = zipfile.ZipFile(zfile, "r")
+
+        for filename in z.namelist():
+            filename = filename.split("/._")[-1]
+            fn.append(filename)
+            z.extractall(os.path.dirname(os.path.realpath(__file__)))
+
+    def get_image_bytes(self, filename):
+        with open(filename, "rb") as image_file:
+            image_bytes = image_file.read()
+        return image_bytes
 
 
 def main():
