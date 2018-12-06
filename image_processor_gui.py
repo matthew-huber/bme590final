@@ -303,7 +303,6 @@ class App(QTabWidget):
     def file_select_button(self):
         self.openFileNamesDialog()
 
-
     def openFileNamesDialog(self):
         global TIMESTAMPS
         TIMESTAMPS = [0]
@@ -532,6 +531,7 @@ class App(QTabWidget):
         image_base64 = base64.b64encode(image_bytes)
         base64_string = image_base64.decode('ascii')
         return base64_string
+
 
 def main():
     app = QApplication(sys.argv)
