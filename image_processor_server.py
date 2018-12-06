@@ -187,7 +187,7 @@ def process(img, proc_type, IP):
     """
     if proc_type == "Histogram Equalization":
         proc_img_buf = IP.histogramEqualization(img)
-        proc_img = 255 * proc_img_buf
+        proc_img = proc_img_buf
     elif proc_type == "Contrast Stretching":
         proc_img = IP.contrastStretch(img)
     elif proc_type == "Reverse Video":
