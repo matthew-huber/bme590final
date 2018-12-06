@@ -303,12 +303,15 @@ class App(QTabWidget):
     def file_select_button(self):
         self.openFileNamesDialog()
 
+
     def openFileNamesDialog(self):
+        global TIMESTAMPS
+        TIMESTAMPS = [0]
+        global fn
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        global fn
-        global timestamps
-        timestamps = [0]
+
         fn_got, _ = QFileDialog.getOpenFileNames(self, "Open Image Files", "",
                                                  "JPEG (*.JPEG *.jpeg *.JPG "
                                                  "*.jpg *.JPE *.jpe "
@@ -423,7 +426,7 @@ class App(QTabWidget):
     def process_server(self):
         images_base64 = []
         processing_type = self.procbox.currentText()
-        timestamps[0] = (str(datetime.now()))
+        TIMESTAMPS[0] = (str(datetime.now()))
 
         if len(fn) > 1:
             self.enable_process_all_button()
@@ -456,7 +459,7 @@ class App(QTabWidget):
             "Images": images_base64,
             "Process": processing_type,
             "User": self.username,
-            "Timestamps": timestamps,
+            "Timestamps": TIMESTAMPS,
             "FileNames": DB_filenames,
         })
 
