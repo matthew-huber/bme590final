@@ -14,6 +14,7 @@ import matplotlib.image as mpimg
 import io
 import numpy as np
 
+
 class App(QTabWidget):
     def __init__(self, parent=None):
         super(App, self).__init__(parent)
