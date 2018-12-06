@@ -12,7 +12,7 @@ import time
 import ast
 import matplotlib.image as mpimg
 import io
-
+import numpy as np
 
 class App(QTabWidget):
     def __init__(self, parent=None):
@@ -299,6 +299,12 @@ class App(QTabWidget):
     def insert_processed_image(self, processed_images):
         byte_image = base64.b64decode(processed_images)
         input_image = decodeImage(byte_image)
+        input_image.setflags(write=1)
+        if input_image.ndim >= 3:
+            temp = np.zeros(input_image.shape, dtype='uint8')
+            temp = np.copy(input_image[:, :, 0])
+            input_image[:, :, 0] = input_image[:, :, 2]
+            input_image[:, :, 2] = temp
         image_shape = input_image.shape
         width = image_shape[1]
         height = image_shape[0]

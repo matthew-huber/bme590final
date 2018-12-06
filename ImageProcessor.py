@@ -29,6 +29,7 @@ class ImageProcessor:
                                                           out_range=(0, 255))
 
         hist_eql_img = hist_eql_img.astype(np.uint8)
+
         return hist_eql_img
 
     def contrastStretch(self, img):
@@ -37,6 +38,7 @@ class ImageProcessor:
         :return: cont_stretch_img: img after contrast stretching
         """
         cont_stretch_img = ski.exposure.rescale_intensity(img)
+
         return cont_stretch_img
 
     def logCompression(self, img):
