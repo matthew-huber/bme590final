@@ -360,10 +360,6 @@ class App(QTabWidget):
 
     def insert_orig_image(self, fn):
 
-        input_image = imread(fn[0])
-        image_shape = input_image.shape
-        width = image_shape[1]
-        height = image_shape[0]
         pixmap_image = QtGui.QPixmap(fn[0])
         pixmap_image_scaled = pixmap_image.scaledToHeight(240)
         self.orig_image.setPixmap(pixmap_image_scaled)
