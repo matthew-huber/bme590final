@@ -13,6 +13,7 @@ import ast
 import matplotlib.image as mpimg
 import io
 import numpy as np
+import imghdr
 
 
 class App(QTabWidget):
@@ -353,6 +354,8 @@ class App(QTabWidget):
                 z.extractall(os.path.dirname(os.path.realpath(__file__)))
             fn.pop(0)
             print(fn)
+        fn = validateFiles(fn)
+
         input_image = imread(fn[0])
         image_shape = input_image.shape
         width = image_shape[1]
@@ -405,6 +408,8 @@ class App(QTabWidget):
         images_base64 = []
         process = self.procbox.currentText()
         filenames = []
+        fn_temp = fn
+
         if len(fn) > 1:
             self.download_all_button.setEnabled(True)
             self.multiple_images = True
@@ -426,7 +431,12 @@ class App(QTabWidget):
                     filename = filename.split("/._")[-1]
                     fn.append(filename)
                     z.extractall(os.path.dirname(os.path.realpath(__file__)))
+                fn.pop(x)  # removes file name that points to zip file
+
+            is_valid_header = validateImageHeader(fn[x])
+            if not is_valid_header:
                 fn.pop(x)
+
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
             image_base64 = base64.b64encode(image_bytes)
@@ -494,6 +504,24 @@ def decodeImage(byte_img):
     i = mpimg.imread(image_buf, format='JPG')
 
     return i
+
+
+def validateFiles(file_list):
+    for inx in range(len(file_list)):
+        file = file_list[inx]
+        is_valid_file = validateImageHeader(file)
+        if not is_valid_file:
+            file_list.pop(inx)
+    return file_list
+
+
+def validateImageHeader(file_path):
+    header = imghdr.what(file_path)
+
+    if header is None:
+        return False
+    else:
+        return True
 
 
 if __name__ == '__main__':
