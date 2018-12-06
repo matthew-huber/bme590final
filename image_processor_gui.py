@@ -355,7 +355,8 @@ class App(QTabWidget):
             fn.pop(0)
             print(fn)
         fn = validateFiles(fn)
-
+        if len(fn) == 0:
+            return
         input_image = imread(fn[0])
         image_shape = input_image.shape
         width = image_shape[1]
@@ -408,7 +409,6 @@ class App(QTabWidget):
         images_base64 = []
         process = self.procbox.currentText()
         filenames = []
-        fn_temp = fn
 
         if len(fn) > 1:
             self.download_all_button.setEnabled(True)
@@ -454,6 +454,8 @@ class App(QTabWidget):
         content = requests.get("http://127.0.0.1:5000/download")
         content = content.json()
         unpack_server_info(content)
+        if len(s5) == 0:
+            return
         self.insert_processed_image(s5[0])
 
 
