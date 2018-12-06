@@ -222,7 +222,8 @@ class App(QTabWidget):
         self.image_pixels.setText(str(image_metadata["image_pixels"]))
         self.process_done.setText(str(image_metadata["process_done"]))
         self.date_upload.setText(str(image_metadata["date_upload"]))
-        self.processing_time.setText(str(image_metadata["process_times"]))
+        self.processing_time.setText(str(image_metadata["process_times"]) +
+                                     " seconds")
 
     def download_image(self):
         """Download image

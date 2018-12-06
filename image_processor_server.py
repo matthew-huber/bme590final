@@ -34,7 +34,7 @@ def get_image_data(filename):
     for image in DB_Image_Meta.objects.raw({"_id": filename}):
         image_data["process_done"] = image.processing_types[-1]
         upload_date = image.upload_timestamp
-        upload_date = upload_date.strftime("%Y-%m-%d %H:%M:%S.%f")
+        upload_date = upload_date.strftime("%Y-%m-%d %H:%M:%S")
         image_data["date_upload"] = upload_date
         image_data["process_times"] = image.processing_times[-1]
         px = str(image.processed_width[-1]) + " x "
@@ -118,6 +118,8 @@ def gui_server():
             end = time.time()
 
             proc_time = end-start
+            proc_time = float("{0:.4f}".format(proc_time))
+
             processing_times.append(proc_time)
 
             OG_characteristics = getImageCharacteristics(i)
