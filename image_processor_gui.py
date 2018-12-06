@@ -354,7 +354,7 @@ class App(QTabWidget):
         content = content.json()
         unpack_server_info(content)
         self.insert_processed_image(s5[0])
-        # make_histogram_plots()
+        make_histogram_plots()
 
 def main():
     app = QApplication(sys.argv)
@@ -441,8 +441,8 @@ def make_histogram_plots():
         ax.set_xlabel("Intensity")
         fig.add_axes(ax)
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()
 
 
 
