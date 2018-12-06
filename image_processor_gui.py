@@ -269,9 +269,9 @@ class App(QTabWidget):
         fn.append(first_image)
         self.insert_orig_image(fn)
         if self.multiple_images:
-            first_proc_image = s5.pop(0)
-            s5.append(first_proc_image)
-            self.insert_processed_image(s5[0])
+            first_proc_image = PROCESSED_IMAGE.pop(0)
+            PROCESSED_IMAGE.append(first_proc_image)
+            self.insert_processed_image(PROCESSED_IMAGE[0])
 
     def orig_prev_image(self):
         """prev image
@@ -280,9 +280,9 @@ class App(QTabWidget):
         fn.insert(0, last_image)
         self.insert_orig_image(fn)
         if self.multiple_images:
-            last_proc_image = s5.pop(-1)
-            s5.insert(0, last_proc_image)
-            self.insert_processed_image(s5[0])
+            last_proc_image = PROCESSED_IMAGE.pop(-1)
+            PROCESSED_IMAGE.insert(0, last_proc_image)
+            self.insert_processed_image(PROCESSED_IMAGE[0])
 
     def update_username(self):
         self.username = self.entered_username.text()
@@ -444,7 +444,7 @@ class App(QTabWidget):
         content = requests.get("http://127.0.0.1:5000/download")
         content = content.json()
         unpack_server_info(content)
-        self.insert_processed_image(s5[0])
+        self.insert_processed_image(PROCESSED_IMAGE[0])
 
 
 def main():
@@ -455,30 +455,30 @@ def main():
 
 
 def unpack_server_info(content1):
-    global s1  # OG Images
-    global s2  # TimeStamps
-    global s3  # OG Height
-    global s4  # OG Width
-    global s5  # Processed Image
-    global s6  # Time Spent
-    global s7  # Processed Height
-    global s8  # Processed Width
-    s1 = content1.get("OG Images")
-    s2 = content1.get("Timestamps")
-    s3 = content1.get("OG Height")
-    s4 = content1.get("OG Width")
-    s5 = content1.get("Processed Images")
-    s6 = content1.get("Time Spent")
-    s7 = content1.get("Processed Height")
-    s8 = content1.get("Processed Width")
-    s1 = ast.literal_eval(s1)
-    s2 = ast.literal_eval(s2)
-    s3 = ast.literal_eval(s3)
-    s4 = ast.literal_eval(s4)
-    s5 = ast.literal_eval(s5)
-    s6 = ast.literal_eval(s6)
-    s7 = ast.literal_eval(s7)
-    s8 = ast.literal_eval(s8)
+    global ORIGINAL_IMAGES
+    global TIMESTAMPS
+    global OG_HEIGHT
+    global OG_WIDTH
+    global PROCESSED_IMAGE
+    global PROCESSING_TIME
+    global PROCESSED_HEIGHT
+    global PROCESSED_WIDTH
+    ORIGINAL_IMAGES = content1.get("OG Images")
+    TIMESTAMPS = content1.get("Timestamps")
+    OG_HEIGHT = content1.get("OG Height")
+    OG_WIDTH = content1.get("OG Width")
+    PROCESSED_IMAGE = content1.get("Processed Images")
+    PROCESSING_TIME = content1.get("Time Spent")
+    PROCESSED_HEIGHT = content1.get("Processed Height")
+    PROCESSED_WIDTH = content1.get("Processed Width")
+    ORIGINAL_IMAGES = ast.literal_eval(ORIGINAL_IMAGES)
+    TIMESTAMPS = ast.literal_eval(TIMESTAMPS)
+    OG_HEIGHT = ast.literal_eval(OG_HEIGHT)
+    OG_WIDTH = ast.literal_eval(OG_WIDTH)
+    PROCESSED_IMAGE = ast.literal_eval(PROCESSED_IMAGE)
+    PROCESSING_TIME = ast.literal_eval(PROCESSING_TIME)
+    PROCESSED_HEIGHT = ast.literal_eval(PROCESSED_HEIGHT)
+    PROCESSED_WIDTH = ast.literal_eval(PROCESSED_WIDTH)
     return "woo"
 
 
