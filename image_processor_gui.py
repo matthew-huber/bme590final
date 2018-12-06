@@ -339,24 +339,27 @@ class App(QTabWidget):
                 self.orig_next_button.setToolTip('No next image to view')
                 self.orig_prev_button.setEnabled(False)
                 self.orig_prev_button.setToolTip('No previous image to view')
+
             self.processor_button.setEnabled(True)
+
+            self.zipped_images = False
+            if zipfile.is_zipfile(fn[0]):
+                self.zipped_images = True
+
+                zfile = fn[0]
+                self.extractAndAppendZipFiles(zfile)
+                fn.pop(0)  # Removes zipfile name from filelist
+
+            fn = validateFiles(fn)
+            # Exits function in the event that there are no valid images in
+            # the files selected
+            if len(fn) == 0:
+                return
+
             self.insert_orig_image(fn)
 
     def insert_orig_image(self, fn):
-        timestamps[0] = (str(datetime.now()))
-        self.zipped_images = False
-        if zipfile.is_zipfile(fn[0]):
-            self.zipped_images = True
-            z = zipfile.ZipFile(fn[0], "r")
-            for filename in z.namelist():
-                filename = filename.split("/._")[-1]
-                fn.append(filename)
-                z.extractall(os.path.dirname(os.path.realpath(__file__)))
-            fn.pop(0)
-            print(fn)
-        fn = validateFiles(fn)
-        if len(fn) == 0:
-            return
+
         input_image = imread(fn[0])
         image_shape = input_image.shape
         width = image_shape[1]
@@ -373,11 +376,28 @@ class App(QTabWidget):
         byte_image = base64.b64decode(processed_images)
         input_image = decodeImage(byte_image)
         input_image.setflags(write=1)
+
         if input_image.ndim >= 3:
-            temp = np.zeros(input_image.shape, dtype='uint8')
-            temp = np.copy(input_image[:, :, 0])
-            input_image[:, :, 0] = input_image[:, :, 2]
-            input_image[:, :, 2] = temp
+            input_image = self.compress_multidimm_image(input_image)
+
+        pixmap_image = self.get_pixelmap_image(input_image)
+
+        self.pixmap_image_scaled = pixmap_image.scaledToHeight(240)
+        self.proc_image.setPixmap(self.pixmap_image_scaled)
+        self.proc_image.setAlignment(QtCore.Qt.AlignCenter)
+        self.proc_image.setScaledContents(True)
+        self.proc_image.setMinimumSize(1, 1)
+        self.proc_image.show()
+
+    def compress_multidimm_image(self, input_image):
+
+        temp = np.zeros(input_image.shape, dtype='uint8')
+        temp = np.copy(input_image[:, :, 0])
+        input_image[:, :, 0] = input_image[:, :, 2]
+        input_image[:, :, 2] = temp
+        return input_image
+
+    def getQImg(self, input_image):
         image_shape = input_image.shape
         width = image_shape[1]
         height = image_shape[0]
@@ -392,14 +412,13 @@ class App(QTabWidget):
             bytesPerLine = channels * width
             qImg = QtGui.QImage(input_image.data, width, height,
                                 bytesPerLine, QtGui.QImage.Format_RGB888)
-        pixmap01 = QtGui.QPixmap.fromImage(qImg)
-        pixmap_image = QtGui.QPixmap(pixmap01)
-        self.pixmap_image_scaled = pixmap_image.scaledToHeight(240)
-        self.proc_image.setPixmap(self.pixmap_image_scaled)
-        self.proc_image.setAlignment(QtCore.Qt.AlignCenter)
-        self.proc_image.setScaledContents(True)
-        self.proc_image.setMinimumSize(1, 1)
-        self.proc_image.show()
+        return qImg
+
+    def get_pixelmap_image(self, input_image):
+        qImg = self.getQImg(input_image)
+        pixmap = QtGui.QPixmap.fromImage(qImg)
+        pixmap_image = QtGui.QPixmap(pixmap)
+        return pixmap_image
 
     def process_button(self):
         self.download_button.setEnabled(True)
@@ -407,22 +426,23 @@ class App(QTabWidget):
 
     def process_server(self):
         images_base64 = []
-        process = self.procbox.currentText()
+        processing_type = self.procbox.currentText()
+        timestamps[0] = (str(datetime.now()))
 
         if len(fn) > 1:
             self.enable_process_all_button()
         else:
             self.disable_process_all_button()
 
-        filenames = self.get_filenames_remove_full_path(fn)
-        filenames = self.get_filenames_add_username(filenames, self.username)
+        DB_filenames = self.makeDatabaseFileNames(fn, self.username)
 
         for x in range(len(fn)):
 
             if zipfile.is_zipfile(fn[x]):
                 self.zipped_images = True
-                zfile = fn[x]
-                self.extractAndAppendZipFiles(zfile)
+                self.extractAndAppendZipFiles(fn[x])
+                # Removes zip filename from filenames list, which have been
+                # replaced with file names in the zip file
                 fn.pop(x)
 
             is_valid_header = validateImageHeader(fn[x])
@@ -438,10 +458,10 @@ class App(QTabWidget):
 
         r2 = requests.post("http://127.0.0.1:5000/upload", json={
             "Images": images_base64,
-            "Process": process,
+            "Process": processing_type,
             "User": self.username,
             "Timestamps": timestamps,
-            "FileNames": filenames,
+            "FileNames": DB_filenames,
         })
 
         time.sleep(2)  # wait for processing before getting processed data
@@ -462,6 +482,11 @@ class App(QTabWidget):
         self.download_all_button.setEnabled(False)
         self.multiple_images = False
         self.zip_download.hide()
+
+    def makeDatabaseFileNames(self, fn, username):
+        filenames = self.get_filenames_remove_full_path(fn)
+        filenames = self.get_filenames_add_username(filenames, username)
+        return filenames
 
     def get_filenames_remove_full_path(self, files):
         """
@@ -490,7 +515,7 @@ class App(QTabWidget):
 
         return filenames
 
-    def extractAndAPpendZipFiles(zfile):
+    def extractAndAppendZipFiles(zfile):
         z = zipfile.ZipFile(zfile, "r")
 
         for filename in z.namelist():
@@ -504,12 +529,10 @@ class App(QTabWidget):
         return image_bytes
 
     def get_base64_string(self, filename):
-        image_bytes = self.get_image_bytes(fn[x])
+        image_bytes = self.get_image_bytes(filename)
         image_base64 = base64.b64encode(image_bytes)
         base64_string = image_base64.decode('ascii')
         return base64_string
-
-
 
 def main():
     app = QApplication(sys.argv)
