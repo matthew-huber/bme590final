@@ -514,7 +514,7 @@ class App(QTabWidget):
 
         return filenames
 
-    def extractAndAppendZipFiles(zfile):
+    def extractAndAppendZipFiles(self, zfile):
         z = zipfile.ZipFile(zfile, "r")
 
         for filename in z.namelist():
