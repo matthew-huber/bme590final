@@ -42,6 +42,7 @@ class App(QTabWidget):
         self.download_button = QPushButton('Download', self)
         self.download_all_button = QPushButton('Download All', self)
         self.processor_button = QPushButton('Process', self)
+        self.zip_download = QCheckBox("Zip together files on download")
 
         # tab3
         self.users_images = QListWidget()
@@ -124,6 +125,10 @@ class App(QTabWidget):
         download_buttons_layout.addWidget(self.download_button)
         download_buttons_layout.addWidget(self.download_all_button)
         tab2layout.addLayout(download_buttons_layout, 1, 3)
+
+        self.zip_download.hide()
+        self.zip_download.setToolTip('Zip if multiple images are downloaded')
+        tab2layout.addWidget(self.zip_download, 2, 3)
 
         self.processor_button.setEnabled(False)
         self.processor_button.setToolTip('Send image for processing')
@@ -233,21 +238,28 @@ class App(QTabWidget):
         filename = filename.split(".")[0]
         filename = filename + "_" + processing_type + "." + filetype
         value = self.pixmap_image_scaled.save(filename, filetype, 100)
-        return filename
+        return filename, processing_type
 
     def download_all_images(self):
         """Download all images
         """
         filenames = []
+        nfiles = 0
         for i in range(len(fn)):
-            filename = self.download_image()
+            filename, processing_type = self.download_image()
             filenames.append(filename)
             self.orig_next_image()
+            nfiles = nfiles + 1
+        if self.zip_download.isChecked():
+            folder_name = str(nfiles) + " " + processing_type + ' images.zip'
+            self.zip_downloaded_images(filenames, folder_name)
 
-        if self.zipped_images:
-            ZipFile = zipfile.Zipfile("zipped_files.zip", "w")
-            for file in filenames:
-                ZipFile.write(file, compress_type=zipfile.ZIP_DEFLATED)
+    def zip_downloaded_images(self, filenames, folder_name):
+        zip_folder = zipfile.ZipFile(folder_name, "w")
+        for file in filenames:
+            zip_folder.write(file, compress_type=zipfile.ZIP_DEFLATED)
+        for file in filenames:
+            os.remove(file)
 
     def orig_next_image(self):
         """next image
@@ -313,6 +325,8 @@ class App(QTabWidget):
             self.proc_image.hide()
             self.download_all_button.setEnabled(False)
             self.download_button.setEnabled(False)
+            self.zip_download.hide()
+
             if len(fn) > 1:
                 self.orig_next_button.setEnabled(True)
                 self.orig_next_button.setToolTip('View next image')
@@ -393,9 +407,11 @@ class App(QTabWidget):
         if len(fn) > 1:
             self.download_all_button.setEnabled(True)
             self.multiple_images = True
+            self.zip_download.show()
         else:
             self.download_all_button.setEnabled(False)
             self.multiple_images = False
+            self.zip_download.hide()
         for i in range(len(fn)):
             filename = fn[i]
             filename = filename.split("/")[-1]
