@@ -333,8 +333,11 @@ class App(QTabWidget):
             self.zipped_images = True
             z = zipfile.ZipFile(fn[0], "r")
             for filename in z.namelist():
-                fn[0] = filename
+                filename = filename.split("/._")[-1]
+                fn.append(filename)
                 z.extractall(os.path.dirname(os.path.realpath(__file__)))
+            fn.pop(0)
+            print(fn)
         input_image = imread(fn[0])
         image_shape = input_image.shape
         width = image_shape[1]
@@ -399,6 +402,14 @@ class App(QTabWidget):
             filenames.append(filename+self.username)
 
         for x in range(len(fn)):
+            if zipfile.is_zipfile(fn[x]):
+                self.zipped_images = True
+                z = zipfile.ZipFile(fn[x], "r")
+                for filename in z.namelist():
+                    filename = filename.split("/._")[-1]
+                    fn.append(filename)
+                    z.extractall(os.path.dirname(os.path.realpath(__file__)))
+                fn.pop(x)
             with open(fn[x], "rb") as image_file:
                 image_bytes = image_file.read()
             image_base64 = base64.b64encode(image_bytes)
