@@ -12,7 +12,8 @@ import time
 import ast
 import matplotlib.image as mpimg
 import io
-
+import json
+from matplotlib import pyplot as plt
 
 class App(QTabWidget):
     def __init__(self, parent=None):
@@ -353,7 +354,7 @@ class App(QTabWidget):
         content = content.json()
         unpack_server_info(content)
         self.insert_processed_image(s5[0])
-
+        # make_histogram_plots()
 
 def main():
     app = QApplication(sys.argv)
@@ -371,6 +372,8 @@ def unpack_server_info(content1):
     global s6  # Time Spent
     global s7  # Processed Height
     global s8  # Processed Width
+    global OG_histograms
+    global proc_histograms
     s1 = content1.get("OG Images")
     s2 = content1.get("Timestamps")
     s3 = content1.get("OG Height")
@@ -379,6 +382,9 @@ def unpack_server_info(content1):
     s6 = content1.get("Time Spent")
     s7 = content1.get("Processed Height")
     s8 = content1.get("Processed Width")
+    OG_histograms = content1.get("OG Histograms")
+    proc_histograms = content1.get("Processed Histograms")
+
     s1 = ast.literal_eval(s1)
     s2 = ast.literal_eval(s2)
     s3 = ast.literal_eval(s3)
@@ -387,6 +393,8 @@ def unpack_server_info(content1):
     s6 = ast.literal_eval(s6)
     s7 = ast.literal_eval(s7)
     s8 = ast.literal_eval(s8)
+    OG_histograms = json.loads(OG_histograms)
+    proc_histograms = json.loads(proc_histograms)
     return "woo"
 
 
@@ -402,6 +410,42 @@ def decodeImage(byte_img):
     i = mpimg.imread(image_buf, format='JPG')
 
     return i
+
+
+def make_histogram_plots():
+    num_cols = len(OG_histograms)
+
+    fig, axarr = plt.subplots(num_cols, 2)
+
+    for i in range(num_cols):
+
+        ax = axarr[i, 0]
+
+        hist_data = OG_histograms[i][0]
+        bins = OG_histograms[i][1]
+
+        ax.hist(hist_data, bins=bins)
+        ax.set_title("Original, Channel " + str(i + 1))
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Intensity")
+        fig.add_axes(ax)
+
+        ax = axarr[i, 1]
+
+        hist_data = proc_histograms[i][0]
+        bins = proc_histograms[i][1]
+
+        ax.hist(hist_data, bins=bins)
+        ax.set_title("Processed, Channel " + str(i + 1))
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Intensity")
+        fig.add_axes(ax)
+
+plt.tight_layout()
+plt.show()
+
+
+
 
 
 if __name__ == '__main__':

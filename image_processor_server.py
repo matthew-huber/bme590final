@@ -53,6 +53,8 @@ def server_gui():
         "Time Spent": str(processing_times),
         "Processed Height": str(processed_height),
         "Processed Width": str(processed_width),
+        "OG Histograms": json.dumps(OG_histograms),
+        "Processed Histograms": json.dumps(proc_histograms)
     }
     r = json.dumps(return_data)
 
@@ -91,12 +93,16 @@ def gui_server():
     global OG_height
     global OG_width
     global processing_times
+    global OG_histograms
+    global proc_histograms
     processing_times = []
     processed_images = []
     processed_height = []
     processed_width = []
     OG_height = []
     OG_width = []
+    OG_histograms = []
+    proc_histograms = []
 
     if check:
         for x in range(len(s1)):
@@ -104,10 +110,14 @@ def gui_server():
             byte_image = base64.b64decode(s1[x])
             i = decodeImage(byte_image)
 
+            OG_histograms = pro.histogram(i)
+
             start = time.time()
             processed_image = process(i, s2, pro)
             enc_image = cv2.imencode('.jpg', processed_image)
             end = time.time()
+
+            proc_histograms = pro.histogram(processed_image)
 
             proc_time = end-start
             processing_times.append(proc_time)
