@@ -447,14 +447,14 @@ class App(QTabWidget):
             is_valid_header = validateImageHeader(fn[x])
             if not is_valid_header:
                 fn.pop(x)
-            # interrupts function if no images remain after removing invalid
-            #  images
-            if len(fn) == 0:
-                return
 
             base64_string = self.get_base64_string(fn[x])
             images_base64.append(base64_string)
 
+        # interrupts function if no images remain after removing invalid
+        #  images
+        if len(fn) == 0:
+            return
         r2 = requests.post("http://127.0.0.1:5000/upload", json={
             "Images": images_base64,
             "Process": processing_type,
