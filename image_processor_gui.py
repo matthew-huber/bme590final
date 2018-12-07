@@ -345,12 +345,12 @@ class App(QTabWidget):
             self.processor_button.setEnabled(True)
 
             self.zipped_images = False
-            if zipfile.is_zipfile(fn[0]):
-                self.zipped_images = True
-
-                zfile = fn[0]
-                self.extractAndAppendZipFiles(zfile)
-                fn.pop(0)  # Removes zipfile name from filelist
+            for x in range(len(fn)):
+                if zipfile.is_zipfile(fn[x]):
+                    self.zipped_images = True
+                    zfile = fn[x]
+                    self.extractAndAppendZipFiles(zfile)
+                    fn.pop(x)  # Removes zipfile name from filelist
 
             fn = validateFiles(fn)
             # Exits function in the event that there are no valid images in
