@@ -14,6 +14,8 @@ import matplotlib.image as mpimg
 import io
 import numpy as np
 import imghdr
+import json
+from matplotlib import pyplot as plt
 
 
 class App(QTabWidget):
@@ -27,8 +29,7 @@ class App(QTabWidget):
         self.tab1 = QWidget()
         self.tab2 = QWidget()
         self.tab3 = QWidget()
-        self.orig_image = QLabel("")
-        self.proc_image = QLabel("")
+        self.tab4 = QWidget()
 
         # tab1
         self.entered_username = QLineEdit()
@@ -40,10 +41,13 @@ class App(QTabWidget):
         self.download_box = QComboBox(self)
         self.orig_next_button = QPushButton('Next Image >>')
         self.orig_prev_button = QPushButton('<< Prev Image')
+        self.view_image_hist = QPushButton('View histograms for these images')
         self.download_button = QPushButton('Download', self)
         self.download_all_button = QPushButton('Download All', self)
         self.processor_button = QPushButton('Process', self)
         self.zip_download = QCheckBox("Zip together files on download")
+        self.orig_image = QLabel("")
+        self.proc_image = QLabel("")
 
         # tab3
         self.users_images = QListWidget()
@@ -56,15 +60,22 @@ class App(QTabWidget):
         self.remove_image = QPushButton("Remove Image", self)
         self.remove_image.setEnabled(False)
 
+        # tab4
+        self.histogram_fig = QLabel("")
+        self.return_to_process = QPushButton("Return to process images tab")
+
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
         self.addTab(self.tab3, "Manage Images")
+        self.addTab(self.tab4, "Color Intensity")
         self.setTabEnabled(1, False)
         self.setTabEnabled(2, False)
+        self.setTabEnabled(3, False)
         self.tab1UI()
         self.tab2UI()
         self.tab3UI()
+        self.tab4UI()
 
         self.left = 100
         self.top = 100
@@ -159,6 +170,11 @@ class App(QTabWidget):
 
         tab2layout.addWidget(proc_image_box, 3, 2, 2, 2)
 
+        self.view_image_hist.setEnabled(False)
+        self.view_image_hist.setToolTip('View histograms for these images')
+        self.view_image_hist.clicked.connect(self.make_histogram_plots)
+        tab2layout.addWidget(self.view_image_hist, 5, 2, 1, 2)
+
         self.tab2.setLayout(tab2layout)
 
     def tab3UI(self):
@@ -177,7 +193,60 @@ class App(QTabWidget):
         layout.addLayout(metadata_layout)
         self.tab3.setLayout(layout)
 
+    def tab4UI(self):
+        histogram_layout = QVBoxLayout()
+        histogram_layout.addWidget(self.histogram_fig)
+        self.return_to_process.clicked.connect(self.switch_tab_2)
+        histogram_layout.addWidget(self.return_to_process)
+        self.tab4.setLayout(histogram_layout)
+
+    def switch_tab_2(self):
+        self.setCurrentIndex(1)
+        self.setTabEnabled(3, False)
+
+    def make_histogram_plots(self):
+        self.setTabEnabled(3, True)
+        num_cols = len(OG_HISTOGRAMS[0])
+        fig, axarr = plt.subplots(num_cols, 2)
+        for i in range(num_cols):
+            if num_cols == 1:
+                ax = axarr[0]
+            else:
+                ax = axarr[i, 0]
+            hist_data = OG_HISTOGRAMS[0][i][0]
+            bins = OG_HISTOGRAMS[0][i][1]
+            ax.hist(hist_data, bins=bins)
+            ax.set_title("Original, Channel " + str(i + 1))
+            ax.set_ylabel("Count")
+            ax.set_xlabel("Intensity")
+            fig.add_axes(ax)
+            if num_cols == 1:
+                ax = axarr[1]
+            else:
+                ax = axarr[i, 1]
+            hist_data = PROC_HISTOGRAMS[0][i][0]
+            bins = PROC_HISTOGRAMS[0][i][1]
+            ax.hist(hist_data, bins=bins)
+            ax.set_title("Processed, Channel " + str(i + 1))
+            ax.set_ylabel("Count")
+            ax.set_xlabel("Intensity")
+            fig.add_axes(ax)
+        plt.tight_layout()
+        plt.savefig('matplot.jpg')
+        self.display_histogram()
+        self.setCurrentIndex(3)
+
+    def display_histogram(self):
+        pixmap_image = QtGui.QPixmap('matplot.jpg')
+        self.histogram_fig.setPixmap(pixmap_image)
+        self.histogram_fig.setAlignment(QtCore.Qt.AlignCenter)
+        self.histogram_fig.setScaledContents(True)
+        self.histogram_fig.show()
+        os.remove('matplot.jpg')
+
     def changed_tab(self, i):
+        if i != 3:
+            self.setTabEnabled(3, False)
         if i == 0:
             self.user_select.clear()
             user_list = requests.get("http://152.3.53.153:5000/user_list")
@@ -270,9 +339,13 @@ class App(QTabWidget):
         fn.append(first_image)
         self.insert_orig_image(fn)
         if self.multiple_images:
+            first = OG_HISTOGRAMS.pop(0)
+            OG_HISTOGRAMS.append(first)
             first_proc_image = PROCESSED_IMAGE.pop(0)
             PROCESSED_IMAGE.append(first_proc_image)
             self.insert_processed_image(PROCESSED_IMAGE[0])
+            first = PROC_HISTOGRAMS.pop(0)
+            PROC_HISTOGRAMS.append(first)
 
     def orig_prev_image(self):
         """prev image
@@ -281,9 +354,13 @@ class App(QTabWidget):
         fn.insert(0, last_image)
         self.insert_orig_image(fn)
         if self.multiple_images:
+            last = OG_HISTOGRAMS.pop(-1)
+            OG_HISTOGRAMS.insert(0, last)
             last_proc_image = PROCESSED_IMAGE.pop(-1)
             PROCESSED_IMAGE.insert(0, last_proc_image)
             self.insert_processed_image(PROCESSED_IMAGE[0])
+            last = PROC_HISTOGRAMS.pop(-1)
+            PROC_HISTOGRAMS.insert(0, last)
 
     def update_username(self):
         self.username = self.entered_username.text()
@@ -294,6 +371,7 @@ class App(QTabWidget):
                 self.username = dropdown_text
             self.setTabEnabled(1, True)
             self.setTabEnabled(2, True)
+            self.setTabEnabled(3, False)
             self.setCurrentIndex(1)
             self.user_select_error.hide()
         else:
@@ -329,6 +407,7 @@ class App(QTabWidget):
             self.proc_image.hide()
             self.download_all_button.setEnabled(False)
             self.download_button.setEnabled(False)
+            self.view_image_hist.setEnabled(False)
             self.zip_download.hide()
 
             if len(fn) > 1:
@@ -351,6 +430,12 @@ class App(QTabWidget):
                     zfile = fn[x]
                     self.extractAndAppendZipFiles(zfile)
                     fn.pop(x)  # Removes zipfile name from filelist
+
+            if self.zipped_images:
+                self.orig_next_button.setEnabled(True)
+                self.orig_next_button.setToolTip('View next image')
+                self.orig_prev_button.setEnabled(True)
+                self.orig_prev_button.setToolTip('View previous image')
 
             fn = validateFiles(fn)
             # Exits function in the event that there are no valid images in
@@ -420,6 +505,7 @@ class App(QTabWidget):
 
     def process_button(self):
         self.download_button.setEnabled(True)
+        self.view_image_hist.setEnabled(True)
         self.process_server()
 
     def process_server(self):
@@ -487,7 +573,6 @@ class App(QTabWidget):
 
     def get_filenames_remove_full_path(self, files):
         """
-
         :param files: list of files with paths
         :return:
         """
@@ -500,7 +585,6 @@ class App(QTabWidget):
 
     def get_filenames_add_username(self, files, username):
         """
-
         :param files: List of file names
         :param username:  Username to append
         :return:
@@ -548,6 +632,7 @@ def unpack_server_info(content1):
     global PROCESSING_TIME
     global PROCESSED_HEIGHT
     global PROCESSED_WIDTH
+
     ORIGINAL_IMAGES = content1.get("OG Images")
     TIMESTAMPS = content1.get("Timestamps")
     OG_HEIGHT = content1.get("OG Height")
@@ -556,6 +641,7 @@ def unpack_server_info(content1):
     PROCESSING_TIME = content1.get("Time Spent")
     PROCESSED_HEIGHT = content1.get("Processed Height")
     PROCESSED_WIDTH = content1.get("Processed Width")
+
     ORIGINAL_IMAGES = ast.literal_eval(ORIGINAL_IMAGES)
     TIMESTAMPS = ast.literal_eval(TIMESTAMPS)
     OG_HEIGHT = ast.literal_eval(OG_HEIGHT)
@@ -564,12 +650,19 @@ def unpack_server_info(content1):
     PROCESSING_TIME = ast.literal_eval(PROCESSING_TIME)
     PROCESSED_HEIGHT = ast.literal_eval(PROCESSED_HEIGHT)
     PROCESSED_WIDTH = ast.literal_eval(PROCESSED_WIDTH)
+
+    global OG_HISTOGRAMS
+    global PROC_HISTOGRAMS
+    OG_HISTOGRAMS = content1.get("OG Histograms")
+    PROC_HISTOGRAMS = content1.get("Processed Histograms")
+
+    OG_HISTOGRAMS = json.loads(OG_HISTOGRAMS)
+    PROC_HISTOGRAMS = json.loads(PROC_HISTOGRAMS)
     return "woo"
 
 
 def decodeImage(byte_img):
     """Decodes a byte_image to a numpy array
-
     :param byte_img:
     :return:
     """
