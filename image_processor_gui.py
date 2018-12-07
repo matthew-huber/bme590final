@@ -435,7 +435,6 @@ class App(QTabWidget):
         DB_filenames = self.makeDatabaseFileNames(fn, self.username)
 
         for x in range(len(fn)):
-
             if zipfile.is_zipfile(fn[x]):
                 self.zipped_images = True
                 self.extractAndAppendZipFiles(fn[x])
@@ -496,7 +495,7 @@ class App(QTabWidget):
         for i in range(len(files)):
             filename = files[i]
             filename = filename.split("/")[-1]
-            filenames.append(filename + self.username)
+            filenames.append(filename)
         return filenames
 
     def get_filenames_add_username(self, files, username):
