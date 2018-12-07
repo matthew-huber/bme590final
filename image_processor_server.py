@@ -157,7 +157,6 @@ def data_validation(dict):
 
 def addImagesToDatabase():
     """adds image metadata to the database
-
     :return: None
     """
     for x in range(len(IMAGES)):
@@ -192,7 +191,6 @@ def addImagesToDatabase():
 
 def process(img, proc_type, IP):
     """Applies specified proc_type to img using the ImageProcessor IP
-
     :param img:
     :param proc_type:
     :param IP:
@@ -213,7 +211,6 @@ def process(img, proc_type, IP):
 
 def getImageCharacteristics(img):
     """Gets the height and width characteristics of an image
-
     :param img:
     :return:
     """
@@ -227,22 +224,25 @@ def getImageCharacteristics(img):
 def addImageCharacteristics(img_char, img_type):
     """Adds the image characteristics (made from getImageCharacteristics
     function) to the global image characteristic variables
-
     :param img_char:
     :param img_type:
     :return:
     """
-    if img_type == "original":
-        OG_height.append(img_char["height"])
-        OG_width.append(img_char["width"])
-    elif img_type == "processed":
-        processed_height.append(img_char["height"])
-        processed_width.append(img_char["width"])
+    try:
+        if img_type == "original":
+            OG_height.append(img_char["height"])
+            OG_width.append(img_char["width"])
+
+        elif img_type == "processed":
+            processed_height.append(img_char["height"])
+            processed_width.append(img_char["width"])
+        return False
+    except:
+        return True
 
 
 def decodeImage(byte_img):
     """Decodes a byte_image to a numpy array
-
     :param byte_img:
     :return:
     """
@@ -255,7 +255,6 @@ def decodeImage(byte_img):
 
 def encodeImage(img):
     """Encodes a numpy array into a byte image
-
     :param img:
     :return:
     """

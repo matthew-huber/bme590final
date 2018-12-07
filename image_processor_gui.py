@@ -573,7 +573,6 @@ class App(QTabWidget):
 
     def get_filenames_remove_full_path(self, files):
         """
-
         :param files: list of files with paths
         :return:
         """
@@ -586,7 +585,6 @@ class App(QTabWidget):
 
     def get_filenames_add_username(self, files, username):
         """
-
         :param files: List of file names
         :param username:  Username to append
         :return:
@@ -665,7 +663,6 @@ def unpack_server_info(content1):
 
 def decodeImage(byte_img):
     """Decodes a byte_image to a numpy array
-
     :param byte_img:
     :return:
     """
