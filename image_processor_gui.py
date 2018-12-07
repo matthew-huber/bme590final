@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtGui, QtCore
 from matplotlib.pyplot import imread
-from matplotlib import pyplot as plt
 import base64
 import sys
 import requests
@@ -16,7 +15,11 @@ import io
 import numpy as np
 import imghdr
 import json
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib import pyplot as plt
 
+import random
 
 class App(QTabWidget):
     def __init__(self, parent=None):
@@ -29,8 +32,7 @@ class App(QTabWidget):
         self.tab1 = QWidget()
         self.tab2 = QWidget()
         self.tab3 = QWidget()
-        self.orig_image = QLabel("")
-        self.proc_image = QLabel("")
+        self.tab4 = QWidget()
 
         # tab1
         self.entered_username = QLineEdit()
@@ -46,6 +48,8 @@ class App(QTabWidget):
         self.download_all_button = QPushButton('Download All', self)
         self.processor_button = QPushButton('Process', self)
         self.zip_download = QCheckBox("Zip together files on download")
+        self.orig_image = QLabel("")
+        self.proc_image = QLabel("")
 
         # tab3
         self.users_images = QListWidget()
@@ -62,11 +66,13 @@ class App(QTabWidget):
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
         self.addTab(self.tab3, "Manage Images")
+        self.addTab(self.tab4, "Color Intensity")
         self.setTabEnabled(1, False)
         self.setTabEnabled(2, False)
         self.tab1UI()
         self.tab2UI()
         self.tab3UI()
+        #self.tab4UI()
 
         self.left = 100
         self.top = 100
@@ -178,6 +184,12 @@ class App(QTabWidget):
 
         layout.addLayout(metadata_layout)
         self.tab3.setLayout(layout)
+
+    def tab4UI(self):
+        m = PlotCanvas(self, width=5, height=4)
+        histogram_layout = QHBoxLayout()
+        histogram_layout.addWidget(m)
+        self.tab4.setLayout(histogram_layout)
 
     def changed_tab(self, i):
         if i == 0:
@@ -471,7 +483,7 @@ class App(QTabWidget):
         unpack_server_info(content)
 
         self.insert_processed_image(PROCESSED_IMAGE[0])
-        make_histogram_plots()
+        self.tab4UI()
 
     def enable_process_all_button(self):
         self.download_all_button.setEnabled(True)
@@ -638,9 +650,30 @@ def make_histogram_plots():
          ax.set_xlabel("Intensity")
          fig.add_axes(ax)
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+    return plt
 
 
+class PlotCanvas(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QSizePolicy.Expanding,
+                                   QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        self.plot()
+
+    def plot(self):
+        data = [random.random() for i in range(25)]
+        ax = self.figure.add_subplot(111)
+        ax.plot(data, 'r-')
+        ax.set_title('PyQt Matplotlib Example')
+        self.draw()
 
 
 if __name__ == '__main__':
