@@ -598,6 +598,39 @@ def validateImageHeader(file_path):
     else:
         return True
 
+def make_histogram_plots():
+    num_cols = len(OG_histograms)
+
+    fig, axarr = plt.subplots(num_cols, 2)
+
+    for i in range(num_cols):
+
+        ax = axarr[i, 0]
+
+        hist_data = OG_histograms[i][0]
+        bins = OG_histograms[i][1]
+
+        ax.hist(hist_data, bins=bins)
+        ax.set_title("Original, Channel " + str(i + 1))
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Intensity")
+        fig.add_axes(ax)
+
+        ax = axarr[i, 1]
+
+        hist_data = proc_histograms[i][0]
+        bins = proc_histograms[i][1]
+
+        ax.hist(hist_data, bins=bins)
+        ax.set_title("Processed, Channel " + str(i + 1))
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Intensity")
+        fig.add_axes(ax)
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 if __name__ == '__main__':
     main()
