@@ -30,10 +30,45 @@ def test_getImageCharacteristics(img, height, width):
     assert img_char["width"] == width
 
 
-# @pytest.mark.parametrize("img, base64_string", [
-    # (b'010101010111', "MDEwMTAxMDEwMTEx"),
-    # (b'0101', "MDEwMQ=="),
-    # (b'0101110', "MDEwMTExMA==")
-# ])
-# def test_encodeImage(img, base64_string):
-    # assert encodeImage(img) == base64_string
+@pytest.mark.parametrize("img, base64_string", [
+    (np.array([1, 2, 3]), 'AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAA'),
+    (np.array([1, 2, 2, 5, 6]), "AQAAAAAAAAACAAAAAAAAAAIAAAAA"
+                                "AAAABQAAAAAAAAAGAAAAAAAAAA=="),
+    (np.array([np.array([1, 2, 2, 5, 6, 8, 10]), np.array([1, 2,
+                                                           2, 5, 6,
+                                                           8, 10])]), "AQAAA"
+                                                                      "AAAAA"
+                                                                      "ACAAA"
+                                                                      "AAAA"
+                                                                      "AAAIA"
+                                                                      "AAAA"
+                                                                      "AAA"
+                                                                      "ABQAAA"
+                                                                      "AAAA"
+                                                                      "AAGA"
+                                                                      "AAAAAA"
+                                                                      "AAAgAAA"
+                                                                      "AAAA"
+                                                                      "AACgAA"
+                                                                      "AAAAAAA"
+                                                                      "BAAAAA"
+                                                                      "AAAA"
+                                                                      "AIAAA"
+                                                                      "AAAA"
+                                                                      "AAAgA"
+                                                                      "AA"
+                                                                      "AAAAA"
+                                                                      "AFAA"
+                                                                      "AAAA"
+                                                                      "AAAAY"
+                                                                      "AAAAA"
+                                                                      "AAAACA"
+                                                                      "AAAAA"
+                                                                      "AAAAK"
+                                                                      "AAAAA"
+                                                                      "AAA"
+                                                                      "AA==")
+])
+def test_encodeImage(img, base64_string):
+    print(encodeImage(img))
+    assert encodeImage(img) == base64_string
