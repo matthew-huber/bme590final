@@ -15,11 +15,8 @@ import io
 import numpy as np
 import imghdr
 import json
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 
-import random
 
 class App(QTabWidget):
     def __init__(self, parent=None):
@@ -44,6 +41,7 @@ class App(QTabWidget):
         self.download_box = QComboBox(self)
         self.orig_next_button = QPushButton('Next Image >>')
         self.orig_prev_button = QPushButton('<< Prev Image')
+        self.view_image_hist = QPushButton('View histograms for these images')
         self.download_button = QPushButton('Download', self)
         self.download_all_button = QPushButton('Download All', self)
         self.processor_button = QPushButton('Process', self)
@@ -64,6 +62,7 @@ class App(QTabWidget):
 
         # tab4
         self.histogram_fig = QLabel("")
+        self.return_to_process = QPushButton("Return to process images tab")
 
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
@@ -72,6 +71,7 @@ class App(QTabWidget):
         self.addTab(self.tab4, "Color Intensity")
         self.setTabEnabled(1, False)
         self.setTabEnabled(2, False)
+        self.setTabEnabled(3, False)
         self.tab1UI()
         self.tab2UI()
         self.tab3UI()
@@ -170,6 +170,11 @@ class App(QTabWidget):
 
         tab2layout.addWidget(proc_image_box, 3, 2, 2, 2)
 
+        self.view_image_hist.setEnabled(False)
+        self.view_image_hist.setToolTip('View histograms for these images')
+        self.view_image_hist.clicked.connect(self.make_histogram_plots)
+        tab2layout.addWidget(self.view_image_hist, 5, 2, 1, 2)
+
         self.tab2.setLayout(tab2layout)
 
     def tab3UI(self):
@@ -191,18 +196,23 @@ class App(QTabWidget):
     def tab4UI(self):
         histogram_layout = QVBoxLayout()
         histogram_layout.addWidget(self.histogram_fig)
-        return_to_process = QPushButton("Return to process images tab")
-        histogram_layout.addWidget(return_to_process)
+        self.return_to_process.clicked.connect(self.switch_tab_2)
+        histogram_layout.addWidget(self.return_to_process)
         self.tab4.setLayout(histogram_layout)
 
+    def switch_tab_2(self):
+        self.setCurrentIndex(1)
+        self.setTabEnabled(3, False)
+
     def make_histogram_plots(self):
+        self.setTabEnabled(3, True)
         num_cols = len(OG_HISTOGRAMS[0])
         fig, axarr = plt.subplots(num_cols, 2)
         for i in range(num_cols):
             if num_cols == 1:
                 ax = axarr[0]
             else:
-               ax = axarr[i, 0]
+                ax = axarr[i, 0]
             hist_data = OG_HISTOGRAMS[0][i][0]
             bins = OG_HISTOGRAMS[0][i][1]
             ax.hist(hist_data, bins=bins)
@@ -213,7 +223,7 @@ class App(QTabWidget):
             if num_cols == 1:
                 ax = axarr[1]
             else:
-               ax = axarr[i, 1]
+                ax = axarr[i, 1]
             hist_data = PROC_HISTOGRAMS[0][i][0]
             bins = PROC_HISTOGRAMS[0][i][1]
             ax.hist(hist_data, bins=bins)
@@ -224,6 +234,7 @@ class App(QTabWidget):
         plt.tight_layout()
         plt.savefig('matplot.jpg')
         self.display_histogram()
+        self.setCurrentIndex(3)
 
     def display_histogram(self):
         pixmap_image = QtGui.QPixmap('matplot.jpg')
@@ -234,6 +245,8 @@ class App(QTabWidget):
         os.remove('matplot.jpg')
 
     def changed_tab(self, i):
+        if i != 3:
+            self.setTabEnabled(3, False)
         if i == 0:
             self.user_select.clear()
             user_list = requests.get("http://127.0.0.1:5000/user_list")
@@ -325,10 +338,14 @@ class App(QTabWidget):
         first_image = fn.pop(0)
         fn.append(first_image)
         self.insert_orig_image(fn)
+        first = OG_HISTOGRAMS.pop(0)
+        OG_HISTOGRAMS.append(first)
         if self.multiple_images:
             first_proc_image = PROCESSED_IMAGE.pop(0)
             PROCESSED_IMAGE.append(first_proc_image)
             self.insert_processed_image(PROCESSED_IMAGE[0])
+            first = PROC_HISTOGRAMS.pop(0)
+            PROC_HISTOGRAMS.append(first)
 
     def orig_prev_image(self):
         """prev image
@@ -336,10 +353,14 @@ class App(QTabWidget):
         last_image = fn.pop(-1)
         fn.insert(0, last_image)
         self.insert_orig_image(fn)
+        last = OG_HISTOGRAMS.pop(-1)
+        OG_HISTOGRAMS.insert(0, last)
         if self.multiple_images:
             last_proc_image = PROCESSED_IMAGE.pop(-1)
             PROCESSED_IMAGE.insert(0, last_proc_image)
             self.insert_processed_image(PROCESSED_IMAGE[0])
+            last = PROC_HISTOGRAMS.pop(-1)
+            PROC_HISTOGRAMS.insert(0, last)
 
     def update_username(self):
         self.username = self.entered_username.text()
@@ -350,6 +371,7 @@ class App(QTabWidget):
                 self.username = dropdown_text
             self.setTabEnabled(1, True)
             self.setTabEnabled(2, True)
+            self.setTabEnabled(3, False)
             self.setCurrentIndex(1)
             self.user_select_error.hide()
         else:
@@ -385,6 +407,7 @@ class App(QTabWidget):
             self.proc_image.hide()
             self.download_all_button.setEnabled(False)
             self.download_button.setEnabled(False)
+            self.view_image_hist.setEnabled(False)
             self.zip_download.hide()
 
             if len(fn) > 1:
@@ -476,6 +499,7 @@ class App(QTabWidget):
 
     def process_button(self):
         self.download_button.setEnabled(True)
+        self.view_image_hist.setEnabled(True)
         self.process_server()
 
     def process_server(self):
@@ -525,7 +549,6 @@ class App(QTabWidget):
         unpack_server_info(content)
 
         self.insert_processed_image(PROCESSED_IMAGE[0])
-        self.make_histogram_plots()
 
     def enable_process_all_button(self):
         self.download_all_button.setEnabled(True)
@@ -664,56 +687,6 @@ def validateImageHeader(file_path):
         return False
     else:
         return True
-
-#def make_histogram_plots():
-#    num_cols = len(OG_HISTOGRAMS[0])
-##    fig, axarr = plt.subplots(num_cols, 2)
-#    for i in range(num_cols):
-#         if num_cols == 1:
-#              ax = axarr[0]
-#         else:
-#              ax = axarr[i, 0]
-#         hist_data = OG_HISTOGRAMS[0][i][0]
-#         bins = OG_HISTOGRAMS[0][i][1]
-#         ax.hist(hist_data, bins=bins)
-#         ax.set_title("Original, Channel " + str(i + 1))
-#         ax.set_ylabel("Count")
-#         ax.set_xlabel("Intensity")
-#         fig.add_axes(ax)
-#         if num_cols == 1:
-#              ax = axarr[1]
-#         else:
-#              ax = axarr[i, 1]
-#         hist_data = PROC_HISTOGRAMS[0][i][0]
-#         bins = PROC_HISTOGRAMS[0][i][1]
-#         ax.hist(hist_data, bins=bins)
-#         ax.set_title("Processed, Channel " + str(i + 1))
-#         ax.set_ylabel("Count")
-#         ax.set_xlabel("Intensity")
-#         fig.add_axes(ax)
-#    plt.tight_layout()
-#    self.canvas.draw()
-
-class PlotCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-        self.plot()
-
-    def plot(self):
-        data = [random.random() for i in range(25)]
-        ax = self.figure.add_subplot(111)
-        ax.plot(data, 'r-')
-        ax.set_title('PyQt Matplotlib Example')
-        self.draw()
 
 
 if __name__ == '__main__':
