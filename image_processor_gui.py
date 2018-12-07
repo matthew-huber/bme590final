@@ -180,7 +180,7 @@ class App(QTabWidget):
     def changed_tab(self, i):
         if i == 0:
             self.user_select.clear()
-            user_list = requests.get("http://127.0.0.1:5000/user_list")
+            user_list = requests.get("http://152.3.53.153:5000/user_list")
             user_list = user_list.json()
             user_list.insert(0, "Select:")
             self.user_select.addItems(user_list)
@@ -189,7 +189,7 @@ class App(QTabWidget):
 
     def update_image_list(self):
         self.users_images.clear()
-        request_url = "http://127.0.0.1:5000/get_images/" + self.username
+        request_url = "http://152.3.53.153:5000/get_images/" + self.username
         get_images = requests.get(request_url)
         get_users_images_list = get_images.json()
         get_users_images = []
@@ -201,7 +201,7 @@ class App(QTabWidget):
     def delete_image(self):
         filename = self.users_images.currentItem().text()
         url_end = filename + self.username
-        request_url = "http://127.0.0.1:5000/delete_image/" + url_end
+        request_url = "http://152.3.53.153:5000/delete_image/" + url_end
         delete = requests.get(request_url)
         self.update_image_list()
 
@@ -215,7 +215,7 @@ class App(QTabWidget):
         self.remove_image.setEnabled(True)
         filename = current.text()
         url_end = filename + self.username
-        request_url = "http://127.0.0.1:5000/image_data/" + url_end
+        request_url = "http://152.3.53.153:5000/image_data/" + url_end
         image_metadata = requests.get(request_url)
         image_metadata = image_metadata.json()
 
@@ -233,7 +233,7 @@ class App(QTabWidget):
         filename = fn[0]
         filename = filename.split("/")[-1]
         url_end = filename + self.username
-        processing_type = "http://127.0.0.1:5000/processing_type/" + url_end
+        processing_type = "http://152.3.53.153:5000/processing_type/" + url_end
         processing_type = requests.get(processing_type)
         processing_type = processing_type.json()
         processing_type = processing_type["process_done"]
@@ -453,7 +453,7 @@ class App(QTabWidget):
         #  images
         if len(fn) == 0:
             return
-        r2 = requests.post("http://127.0.0.1:5000/upload", json={
+        r2 = requests.post("http://152.3.53.153:5000/upload", json={
             "Images": images_base64,
             "Process": processing_type,
             "User": self.username,
@@ -464,7 +464,7 @@ class App(QTabWidget):
         time.sleep(2)  # wait for processing before getting processed data
 
         global content
-        content = requests.get("http://127.0.0.1:5000/download")
+        content = requests.get("http://152.3.53.153:5000/download")
         content = content.json()
         unpack_server_info(content)
 
