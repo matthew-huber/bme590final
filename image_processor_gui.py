@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtGui, QtCore
 from matplotlib.pyplot import imread
+from matplotlib import pyplot as plt
 import base64
 import sys
 import requests
@@ -14,6 +15,7 @@ import matplotlib.image as mpimg
 import io
 import numpy as np
 import imghdr
+import json
 
 
 class App(QTabWidget):
@@ -469,6 +471,7 @@ class App(QTabWidget):
         unpack_server_info(content)
 
         self.insert_processed_image(PROCESSED_IMAGE[0])
+        make_histogram_plots()
 
     def enable_process_all_button(self):
         self.download_all_button.setEnabled(True)
@@ -548,6 +551,7 @@ def unpack_server_info(content1):
     global PROCESSING_TIME
     global PROCESSED_HEIGHT
     global PROCESSED_WIDTH
+
     ORIGINAL_IMAGES = content1.get("OG Images")
     TIMESTAMPS = content1.get("Timestamps")
     OG_HEIGHT = content1.get("OG Height")
@@ -556,6 +560,7 @@ def unpack_server_info(content1):
     PROCESSING_TIME = content1.get("Time Spent")
     PROCESSED_HEIGHT = content1.get("Processed Height")
     PROCESSED_WIDTH = content1.get("Processed Width")
+
     ORIGINAL_IMAGES = ast.literal_eval(ORIGINAL_IMAGES)
     TIMESTAMPS = ast.literal_eval(TIMESTAMPS)
     OG_HEIGHT = ast.literal_eval(OG_HEIGHT)
@@ -564,6 +569,14 @@ def unpack_server_info(content1):
     PROCESSING_TIME = ast.literal_eval(PROCESSING_TIME)
     PROCESSED_HEIGHT = ast.literal_eval(PROCESSED_HEIGHT)
     PROCESSED_WIDTH = ast.literal_eval(PROCESSED_WIDTH)
+
+    global OG_HISTOGRAMS
+    global PROC_HISTOGRAMS
+    OG_HISTOGRAMS = content1.get("OG Histograms")
+    PROC_HISTOGRAMS = content1.get("Processed Histograms")
+
+    OG_HISTOGRAMS = json.loads(OG_HISTOGRAMS)
+    PROC_HISTOGRAMS = json.loads(PROC_HISTOGRAMS)
     return "woo"
 
 
@@ -599,36 +612,34 @@ def validateImageHeader(file_path):
         return True
 
 def make_histogram_plots():
-    num_cols = len(OG_histograms)
-
+    num_cols = len(OG_HISTOGRAMS[0])
     fig, axarr = plt.subplots(num_cols, 2)
-
     for i in range(num_cols):
-
-        ax = axarr[i, 0]
-
-        hist_data = OG_histograms[i][0]
-        bins = OG_histograms[i][1]
-
-        ax.hist(hist_data, bins=bins)
-        ax.set_title("Original, Channel " + str(i + 1))
-        ax.set_ylabel("Count")
-        ax.set_xlabel("Intensity")
-        fig.add_axes(ax)
-
-        ax = axarr[i, 1]
-
-        hist_data = proc_histograms[i][0]
-        bins = proc_histograms[i][1]
-
-        ax.hist(hist_data, bins=bins)
-        ax.set_title("Processed, Channel " + str(i + 1))
-        ax.set_ylabel("Count")
-        ax.set_xlabel("Intensity")
-        fig.add_axes(ax)
-
+         if num_cols == 1:
+              ax = axarr[0]
+         else:
+              ax = axarr[i, 0]
+         hist_data = OG_HISTOGRAMS[0][i][0]
+         bins = OG_HISTOGRAMS[0][i][1]
+         ax.hist(hist_data, bins=bins)
+         ax.set_title("Original, Channel " + str(i + 1))
+         ax.set_ylabel("Count")
+         ax.set_xlabel("Intensity")
+         fig.add_axes(ax)
+         if num_cols == 1:
+              ax = axarr[1]
+         else:
+              ax = axarr[i, 1]
+         hist_data = PROC_HISTOGRAMS[0][i][0]
+         bins = PROC_HISTOGRAMS[0][i][1]
+         ax.hist(hist_data, bins=bins)
+         ax.set_title("Processed, Channel " + str(i + 1))
+         ax.set_ylabel("Count")
+         ax.set_xlabel("Intensity")
+         fig.add_axes(ax)
     plt.tight_layout()
     plt.show()
+
 
 
 

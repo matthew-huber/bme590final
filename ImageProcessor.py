@@ -102,13 +102,23 @@ class ImageProcessor:
         """
         hist = []
         if self.isGrayscale(img):
+            [bins, hist_vals] = ski.exposure.histogram(img)
+            bins = bins.tolist()
+            hist_vals = hist_vals.tolist()
+            hist_temp = (bins, hist_vals)
 
-            hist.append(ski.exposure.histogram(img))
+            hist.append(hist_temp)
+
             return hist
         else:
             dimm = img.shape
             hist = []
             for d in range(0, dimm[2]):
-                h = ski.exposure.histogram(img[:, :, d])
-                hist.append(h)
+                [bins, hist_vals] = ski.exposure.histogram(img[:, :, d])
+                bins = bins.tolist()
+                hist_vals = hist_vals.tolist()
+                hist_temp = (bins, hist_vals)
+
+                hist.append(hist_temp)
             return hist
+
