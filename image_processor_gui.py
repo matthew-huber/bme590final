@@ -338,9 +338,9 @@ class App(QTabWidget):
         first_image = fn.pop(0)
         fn.append(first_image)
         self.insert_orig_image(fn)
-        first = OG_HISTOGRAMS.pop(0)
-        OG_HISTOGRAMS.append(first)
         if self.multiple_images:
+            first = OG_HISTOGRAMS.pop(0)
+            OG_HISTOGRAMS.append(first)
             first_proc_image = PROCESSED_IMAGE.pop(0)
             PROCESSED_IMAGE.append(first_proc_image)
             self.insert_processed_image(PROCESSED_IMAGE[0])
@@ -353,9 +353,9 @@ class App(QTabWidget):
         last_image = fn.pop(-1)
         fn.insert(0, last_image)
         self.insert_orig_image(fn)
-        last = OG_HISTOGRAMS.pop(-1)
-        OG_HISTOGRAMS.insert(0, last)
         if self.multiple_images:
+            last = OG_HISTOGRAMS.pop(-1)
+            OG_HISTOGRAMS.insert(0, last)
             last_proc_image = PROCESSED_IMAGE.pop(-1)
             PROCESSED_IMAGE.insert(0, last_proc_image)
             self.insert_processed_image(PROCESSED_IMAGE[0])
@@ -430,6 +430,12 @@ class App(QTabWidget):
                     zfile = fn[x]
                     self.extractAndAppendZipFiles(zfile)
                     fn.pop(x)  # Removes zipfile name from filelist
+
+            if self.zipped_images:
+                self.orig_next_button.setEnabled(True)
+                self.orig_next_button.setToolTip('View next image')
+                self.orig_prev_button.setEnabled(True)
+                self.orig_prev_button.setToolTip('View previous image')
 
             fn = validateFiles(fn)
             # Exits function in the event that there are no valid images in
