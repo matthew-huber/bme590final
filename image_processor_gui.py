@@ -62,6 +62,9 @@ class App(QTabWidget):
         self.remove_image = QPushButton("Remove Image", self)
         self.remove_image.setEnabled(False)
 
+        # tab4
+        self.histogram_fig = QLabel("")
+
         self.currentChanged.connect(self.changed_tab)
         self.addTab(self.tab1, "Specify User")
         self.addTab(self.tab2, "Process Image")
@@ -72,7 +75,7 @@ class App(QTabWidget):
         self.tab1UI()
         self.tab2UI()
         self.tab3UI()
-        #self.tab4UI()
+        self.tab4UI()
 
         self.left = 100
         self.top = 100
@@ -186,10 +189,49 @@ class App(QTabWidget):
         self.tab3.setLayout(layout)
 
     def tab4UI(self):
-        m = PlotCanvas(self, width=5, height=4)
-        histogram_layout = QHBoxLayout()
-        histogram_layout.addWidget(m)
+        histogram_layout = QVBoxLayout()
+        histogram_layout.addWidget(self.histogram_fig)
+        return_to_process = QPushButton("Return to process images tab")
+        histogram_layout.addWidget(return_to_process)
         self.tab4.setLayout(histogram_layout)
+
+    def make_histogram_plots(self):
+        num_cols = len(OG_HISTOGRAMS[0])
+        fig, axarr = plt.subplots(num_cols, 2)
+        for i in range(num_cols):
+            if num_cols == 1:
+                ax = axarr[0]
+            else:
+               ax = axarr[i, 0]
+            hist_data = OG_HISTOGRAMS[0][i][0]
+            bins = OG_HISTOGRAMS[0][i][1]
+            ax.hist(hist_data, bins=bins)
+            ax.set_title("Original, Channel " + str(i + 1))
+            ax.set_ylabel("Count")
+            ax.set_xlabel("Intensity")
+            fig.add_axes(ax)
+            if num_cols == 1:
+                ax = axarr[1]
+            else:
+               ax = axarr[i, 1]
+            hist_data = PROC_HISTOGRAMS[0][i][0]
+            bins = PROC_HISTOGRAMS[0][i][1]
+            ax.hist(hist_data, bins=bins)
+            ax.set_title("Processed, Channel " + str(i + 1))
+            ax.set_ylabel("Count")
+            ax.set_xlabel("Intensity")
+            fig.add_axes(ax)
+        plt.tight_layout()
+        plt.savefig('matplot.jpg')
+        self.display_histogram()
+
+    def display_histogram(self):
+        pixmap_image = QtGui.QPixmap('matplot.jpg')
+        self.histogram_fig.setPixmap(pixmap_image)
+        self.histogram_fig.setAlignment(QtCore.Qt.AlignCenter)
+        self.histogram_fig.setScaledContents(True)
+        self.histogram_fig.show()
+        os.remove('matplot.jpg')
 
     def changed_tab(self, i):
         if i == 0:
@@ -483,7 +525,7 @@ class App(QTabWidget):
         unpack_server_info(content)
 
         self.insert_processed_image(PROCESSED_IMAGE[0])
-        self.tab4UI()
+        self.make_histogram_plots()
 
     def enable_process_all_button(self):
         self.download_all_button.setEnabled(True)
@@ -623,36 +665,34 @@ def validateImageHeader(file_path):
     else:
         return True
 
-def make_histogram_plots():
-    num_cols = len(OG_HISTOGRAMS[0])
-    fig, axarr = plt.subplots(num_cols, 2)
-    for i in range(num_cols):
-         if num_cols == 1:
-              ax = axarr[0]
-         else:
-              ax = axarr[i, 0]
-         hist_data = OG_HISTOGRAMS[0][i][0]
-         bins = OG_HISTOGRAMS[0][i][1]
-         ax.hist(hist_data, bins=bins)
-         ax.set_title("Original, Channel " + str(i + 1))
-         ax.set_ylabel("Count")
-         ax.set_xlabel("Intensity")
-         fig.add_axes(ax)
-         if num_cols == 1:
-              ax = axarr[1]
-         else:
-              ax = axarr[i, 1]
-         hist_data = PROC_HISTOGRAMS[0][i][0]
-         bins = PROC_HISTOGRAMS[0][i][1]
-         ax.hist(hist_data, bins=bins)
-         ax.set_title("Processed, Channel " + str(i + 1))
-         ax.set_ylabel("Count")
-         ax.set_xlabel("Intensity")
-         fig.add_axes(ax)
-    plt.tight_layout()
-    #plt.show()
-    return plt
-
+#def make_histogram_plots():
+#    num_cols = len(OG_HISTOGRAMS[0])
+##    fig, axarr = plt.subplots(num_cols, 2)
+#    for i in range(num_cols):
+#         if num_cols == 1:
+#              ax = axarr[0]
+#         else:
+#              ax = axarr[i, 0]
+#         hist_data = OG_HISTOGRAMS[0][i][0]
+#         bins = OG_HISTOGRAMS[0][i][1]
+#         ax.hist(hist_data, bins=bins)
+#         ax.set_title("Original, Channel " + str(i + 1))
+#         ax.set_ylabel("Count")
+#         ax.set_xlabel("Intensity")
+#         fig.add_axes(ax)
+#         if num_cols == 1:
+#              ax = axarr[1]
+#         else:
+#              ax = axarr[i, 1]
+#         hist_data = PROC_HISTOGRAMS[0][i][0]
+#         bins = PROC_HISTOGRAMS[0][i][1]
+#         ax.hist(hist_data, bins=bins)
+#         ax.set_title("Processed, Channel " + str(i + 1))
+#         ax.set_ylabel("Count")
+#         ax.set_xlabel("Intensity")
+#         fig.add_axes(ax)
+#    plt.tight_layout()
+#    self.canvas.draw()
 
 class PlotCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
