@@ -27,8 +27,8 @@ def test_data_validation(dict, is_valid):
 ])
 def test_getImageCharacteristics(img, height, width):
     img_char = getImageCharacteristics(img)
-    assert img_char["height"] == height
-    assert img_char["width"] == width
+    assert img_char[0] == height
+    assert img_char[1] == width
 
 
 @pytest.mark.parametrize("img, base64_string", [
@@ -92,11 +92,14 @@ def test_encodeImage(img, base64_string):
     # assert a.all()
 
 
-@pytest.mark.parametrize("img, type1, base64_string", [
-    ([10, 5], "original", True),
-    ([11, 0], "processed", True),
-    ([11, 0], " ", False),
+@pytest.mark.parametrize("img, type1, height, width, list1, list2", [
+    ([10, 5], "original", [], [], [10], [5]),
+    ([11, 0], "processed", [], [], [11], [0]),
+    ([17, 3], "original", [], [], [17], [3]),
 ])
-def test_addimagechars(img, type1, base64_string):
-    val = addImageCharacteristics(img, type1)
-    assert val == base64_string
+def test_addimagechars(img, type1, height, width, list1, list2):
+    val1, val2 = addImageCharacteristics(img, type1, height, width)
+    boo1 = (val1 == list1)
+    boo2 = (val2 == list2)
+    boof = (boo1 and boo2)
+    assert boof

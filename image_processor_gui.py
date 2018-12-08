@@ -549,11 +549,8 @@ class App(QTabWidget):
             "FileNames": DB_filenames,
         })
 
-        time.sleep(2)  # wait for processing before getting processed data
-
         global content
-        content = requests.get("http://152.3.53.153:5000/download")
-        content = content.json()
+        content = r2.json()
         unpack_server_info(content)
 
         self.insert_processed_image(PROCESSED_IMAGE[0])
