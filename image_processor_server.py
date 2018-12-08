@@ -102,9 +102,12 @@ def gui_server():
             processing_times.append(proc_time)
 
             OG_characteristics = getImageCharacteristics(i)
-            addImageCharacteristics(OG_characteristics, "original")
+            OG_height, OG_width = addImageCharacteristics(
+                OG_characteristics, "original", OG_height, OG_width)
             proc_characteristics = getImageCharacteristics(processed_image)
-            addImageCharacteristics(proc_characteristics, "processed")
+            processed_height, processed_width = addImageCharacteristics(
+                proc_characteristics, "processed", processed_height,
+                processed_width)
 
             encoded_proc_img = encodeImage(enc_image[1])
             processed_images.append(encoded_proc_img)
@@ -189,31 +192,27 @@ def getImageCharacteristics(img):
     :param img:
     :return:
     """
-    img_char = {}
-    img_char["height"] = img.shape[0]
-    img_char["width"] = img.shape[1]
+    img_char = img.shape
 
     return img_char
 
 
-def addImageCharacteristics(img_char, img_type):
+def addImageCharacteristics(img_char, img_type, height, width):
     """Adds the image characteristics (made from getImageCharacteristics
     function) to the global image characteristic variables
     :param img_char:
     :param img_type:
     :return:
     """
-    try:
-        if img_type == "original":
-            OG_height.append(img_char["height"])
-            OG_width.append(img_char["width"])
 
-        elif img_type == "processed":
-            processed_height.append(img_char["height"])
-            processed_width.append(img_char["width"])
-        return False
-    except:
-        return True
+    if img_type == "original":
+        height.append(img_char[0])
+        width.append(img_char[1])
+
+    elif img_type == "processed":
+        height.append(img_char[0])
+        width.append(img_char[1])
+    return height, width
 
 
 def decodeImage(byte_img):
