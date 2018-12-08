@@ -14,6 +14,14 @@ app = Flask(__name__)
 
 @app.route("/get_images/<user>", methods=["GET"])
 def get_images(user):
+    """
+        Performs a query of the database based on
+        username. This returns all image file names
+        asscoiated that user. sent back to gui
+    :param user: string that contains name of the user
+    :return: list with filepaths/names of all images
+    associated that user
+    """
     image_list = []
     for image in DB_Image_Meta.objects.raw({"user": user}):
         image_list.append(image.img_file_path)
@@ -22,6 +30,13 @@ def get_images(user):
 
 @app.route("/processing_type/<filename>", methods=["GET"])
 def processing_type(filename):
+    """
+        Performs a query for a unique file and pulls what
+        type of image processing has last been done on it
+    :param filename: the file or image being searched for
+    :return: dict with only the type of image processing
+        that has been last performed
+    """
     image_data = {}
     for image in DB_Image_Meta.objects.raw({"_id": filename}):
         image_data["process_done"] = image.processing_types[-1]
@@ -30,6 +45,13 @@ def processing_type(filename):
 
 @app.route("/image_data/<filename>", methods=["GET"])
 def get_image_data(filename):
+    """
+        Performs a query for a unique file and pulls all
+        image meta data from the stored file. Sends this back
+        to the gui for display
+    :param filename: the file or image being searched for
+    :return: dictornary with all image meta data
+    """
     image_data = {}
     for image in DB_Image_Meta.objects.raw({"_id": filename}):
         image_data["process_done"] = image.processing_types[-1]
@@ -45,6 +67,12 @@ def get_image_data(filename):
 
 @app.route("/delete_image/<filename>", methods=["GET"])
 def delete_image(filename):
+    """
+        Performs a query for a unique file and then uses
+        the mongo command delete to remove this unique file
+    :param filename: unique filepath/name stored in the database
+    :return: returns the boolean true to confirm deletion
+    """
     DB_Image_Meta.objects.raw({"_id": filename}).delete()
 
     return jsonify({"status": "true"})
@@ -52,6 +80,11 @@ def delete_image(filename):
 
 @app.route("/user_list", methods=["GET"])
 def user_list():
+    """
+        Queries the database for all users stored in it.
+        Then sends a list of these users back to the gui.
+    :return: JSON list of users
+    """
     list_of_users = []
     for image in DB_Image_Meta.objects.all():
         if image.user not in list_of_users:
@@ -61,6 +94,14 @@ def user_list():
 
 @app.route("/upload", methods=['POST'])
 def gui_server():
+    """
+        Post request that receives data from the gui.
+        In this same function the data is unpacked,
+        processed, repackaged and sent back to the
+        gui. This is all done in a modular function
+    :return: JSON if the data from the gui is correct
+    . If the data is incorrect than a string is returned.
+    """
     r = request.get_json()
     IMAGES = r.get("Images")
     PROCESSING_TYPE = r.get("Process")
@@ -123,6 +164,12 @@ def gui_server():
 
 
 def data_validation(dict):
+    """
+        Checks that data received from the gui is not Null
+    :param dict: dictonary of usable information about the image
+    from the gui
+    :return: boolean
+    """
     s1 = dict.get("Images")
     s2 = dict.get("Process")
     s3 = dict.get("Timestamps")
@@ -241,6 +288,31 @@ def encodeImage(img):
 def server_gui(Images, Timestamps, og_height, og_width,
                Pro_images, Pro_times, pro_height, pro_width,
                og_histo, pro_histo):
+    """
+        Packs the data for the processed image into a dict
+        to be sent back to the gui
+
+    :param Images: list of encoded og images
+    :param Timestamps: list of datatime objects, when images
+    were uploaded
+    :param og_height: list that contains the orginal images
+    heights
+    :param og_width: list that contains the original image
+    widths
+    :param Pro_images: list of encoded processed images
+    :param Pro_times: list of times that it took to process
+    the image
+    :param pro_height: list that contains the processed
+    image's heights
+    :param pro_width: list that contains the processed
+    image's widths
+    :param og_histo: list that contains the histograms
+    for the original image channels
+    :param pro_histo: list that contains the histograms
+    for the processed image channels
+    :return: dict that contains the all the information
+    described above
+    """
     return_data = {
         "OG Images": str(Images),
         "Timestamps": str(Timestamps),
