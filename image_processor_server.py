@@ -50,25 +50,6 @@ def delete_image(filename):
     return jsonify({"status": "true"})
 
 
-@app.route("/download", methods=["GET"])
-def server_gui():
-    return_data = {
-        "OG Images": str(IMAGES),
-        "Timestamps": str(TIMESTAMPS),
-        "OG Height": str(OG_height),
-        "OG Width": str(OG_width),
-        "Processed Images": str(processed_images),
-        "Time Spent": str(processing_times),
-        "Processed Height": str(processed_height),
-        "Processed Width": str(processed_width),
-        "OG Histograms": json.dumps(OG_histograms),
-        "Processed Histograms": json.dumps(proc_histograms)
-    }
-    r = json.dumps(return_data)
-
-    return r
-
-
 @app.route("/user_list", methods=["GET"])
 def user_list():
     list_of_users = []
@@ -81,11 +62,6 @@ def user_list():
 @app.route("/upload", methods=['POST'])
 def gui_server():
     r = request.get_json()
-    global IMAGES
-    global PROCESSING_TYPE
-    global TIMESTAMPS
-    global FILENAMES
-    global USERNAME
     IMAGES = r.get("Images")
     PROCESSING_TYPE = r.get("Process")
     TIMESTAMPS = r.get("Timestamps")
@@ -95,12 +71,6 @@ def gui_server():
     check = data_validation(r)
 
     pro = ImageProcessor()
-    global processed_images
-    global processed_height
-    global processed_width
-    global OG_height
-    global OG_width
-    global processing_times
     processing_times = []
     processed_images = []
     processed_height = []
@@ -108,8 +78,6 @@ def gui_server():
     OG_height = []
     OG_width = []
 
-    global OG_histograms
-    global proc_histograms
     OG_histograms = []
     proc_histograms = []
 
@@ -141,8 +109,13 @@ def gui_server():
             encoded_proc_img = encodeImage(enc_image[1])
             processed_images.append(encoded_proc_img)
 
-        addImagesToDatabase()
-        return "woo"
+        addImagesToDatabase(IMAGES, FILENAMES, USERNAME, processing_times,
+                            PROCESSING_TYPE, OG_height, OG_width,
+                            processed_height, processed_width, TIMESTAMPS)
+        r2 = server_gui(IMAGES, TIMESTAMPS, OG_height, OG_width,
+                        processed_images, processing_times, processed_height,
+                        processed_width, OG_histograms, proc_histograms)
+        return r2
     return "Bad Data send new Image(s) or Modified Version of Image"
 
 
@@ -155,7 +128,9 @@ def data_validation(dict):
     return False
 
 
-def addImagesToDatabase():
+def addImagesToDatabase(IMAGES, FILENAMES, USERNAME, processing_times,
+                        PROCESSING_TYPE, OG_height, OG_width,
+                        processed_height, processed_width, TIMESTAMPS):
     """adds image metadata to the database
     :return: None
     """
@@ -262,6 +237,26 @@ def encodeImage(img):
     processed_image_base64 = base64.b64encode(bytes_img)
     base64_string = processed_image_base64.decode('ascii')
     return base64_string
+
+
+def server_gui(Images, Timestamps, og_height, og_width,
+               Pro_images, Pro_times, pro_height, pro_width,
+               og_histo, pro_histo):
+    return_data = {
+        "OG Images": str(Images),
+        "Timestamps": str(Timestamps),
+        "OG Height": str(og_height),
+        "OG Width": str(og_width),
+        "Processed Images": str(Pro_images),
+        "Time Spent": str(Pro_times),
+        "Processed Height": str(pro_height),
+        "Processed Width": str(pro_width),
+        "OG Histograms": json.dumps(og_histo),
+        "Processed Histograms": json.dumps(pro_histo)
+    }
+    r = json.dumps(return_data)
+
+    return r
 
 
 if __name__ == "__main__":
