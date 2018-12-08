@@ -444,7 +444,8 @@ class App(QTabWidget):
             # the files selected
             if len(fn) == 0:
                 return
-
+            global PROCESSED_IMAGE
+            PROCESSED_IMAGE = []
             self.insert_orig_image(fn)
 
     def insert_orig_image(self, fn):
