@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtGui, QtCore
+import matplotlib
 from matplotlib.pyplot import imread
 import base64
 import sys
@@ -16,6 +17,7 @@ import numpy as np
 import imghdr
 import json
 from matplotlib import pyplot as plt
+matplotlib.use("QT5Agg")
 
 
 class App(QTabWidget):
