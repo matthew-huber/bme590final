@@ -34,46 +34,15 @@ def test_getImageCharacteristics(img, height, width):
     assert img_char[1] == width
 
 
-@pytest.mark.parametrize("img, base64_string", [
-    (np.array([1, 2, 3]), 'AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAA'),
-    (np.array([1, 2, 2, 5, 6]), "AQAAAAAAAAACAAAAAAAAAAIAAAAA"
-                                "AAAABQAAAAAAAAAGAAAAAAAAAA=="),
-    (np.array([np.array([1, 2, 2, 5, 6, 8, 10]), np.array([1, 2,
-                                                           2, 5, 6,
-                                                           8, 10])]), "AQAAA"
-                                                                      "AAAAA"
-                                                                      "ACAAA"
-                                                                      "AAAA"
-                                                                      "AAAIA"
-                                                                      "AAAA"
-                                                                      "AAA"
-                                                                      "ABQAAA"
-                                                                      "AAAA"
-                                                                      "AAGA"
-                                                                      "AAAAAA"
-                                                                      "AAAgAAA"
-                                                                      "AAAA"
-                                                                      "AACgAA"
-                                                                      "AAAAAAA"
-                                                                      "BAAAAA"
-                                                                      "AAAA"
-                                                                      "AIAAA"
-                                                                      "AAAA"
-                                                                      "AAAgA"
-                                                                      "AA"
-                                                                      "AAAAA"
-                                                                      "AFAA"
-                                                                      "AAAA"
-                                                                      "AAAAY"
-                                                                      "AAAAA"
-                                                                      "AAAACA"
-                                                                      "AAAAA"
-                                                                      "AAAAK"
-                                                                      "AAAAA"
-                                                                      "AAA"
-                                                                      "AA==")
+@pytest.mark.parametrize("img", [
+    (np.array([1, 2, 3])),
+    (np.array([1, 2, 2, 5, 6])),
+    (np.array([np.array([1, 2, 2, 5, 6, 8, 10])]))
 ])
-def test_encodeImage(img, base64_string):
+def test_encodeImage(img):
+    bytes_img = img.tobytes()
+    processed_img_base64 = base64.b64encode(bytes_img)
+    base64_string = processed_img_base64.decode('ascii')
     assert encodeImage(img) == base64_string
 
 
@@ -89,7 +58,7 @@ def test_encodeImage(img, base64_string):
     # (image_bytes, mpimg.imread("TestImages/grayscale.jpeg", format='JPG')),
     # (image_bytes1, mpimg.imread("TestImages/GS_3D.jpg", format='JPG')),
     # (image_bytes2, mpimg.imread("TestImages/color_img.jpg", format='JPG')),
-# ])
+## ])
 # def test_decodeImage(img, base64_string):
     # a = decodeImage(img) == base64_string
     # assert a.all()
