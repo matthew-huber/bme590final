@@ -40,7 +40,7 @@ def test_getfilenames_remove_full_path(filenames, expected, GUI):
 def test_get_files_add_username(files, username, expected, GUI):
     assert GUI.get_filenames_add_username(files, username) == expected
 
-
+"""
 @pytest.mark.parametrize("filepath, isValid", [
     ("TestImages/color_img.jpg", True),
     ("TestImages/GS_2D.png", True),
@@ -61,3 +61,4 @@ def test_validateImageHeader(filepath, isValid):
     ])
 def test_validateFiles(input_files, output_files):
     assert validateFiles(input_files) == output_files
+"""
