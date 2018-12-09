@@ -17,7 +17,7 @@ import numpy as np
 import imghdr
 import json
 from matplotlib import pyplot as plt
-matplotlib.use("QT5Agg")
+# matplotlib.use("QT5Agg")
 
 
 class App(QTabWidget):
