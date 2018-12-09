@@ -145,8 +145,8 @@ def test_addimagestodatabase(images, filenames, username, pro_times, pro_type,
 
     (np.array([np.array([1, 2, 2, 5, 6, 8]), np.array([1, 2, 2, 5, 6, 8])]),
      "Log Compression",
-     np.array([np.array([1, 2, 2, 7, 8, 11]),
-               np.array([1, 2, 2, 7, 8, 11])])),
+     ski.exposure.adjust_log(np.array([np.array([1, 2, 2, 5, 6, 8]),
+               np.array([1, 2, 2, 5, 6, 8])]))),
     (np.array([1, 2, 3]), "Reverse Video", np.array([-2, -3, -4])),
 ])
 def test_process(img, proc_type, output, IP):
