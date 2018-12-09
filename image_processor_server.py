@@ -279,7 +279,10 @@ def encodeImage(img):
     :param img:
     :return:
     """
-    bytes_img = img.tobytes()
+    if type(img) is not bytes:
+        bytes_img = img.tobytes()
+    else:
+        bytes_img = img
     processed_image_base64 = base64.b64encode(bytes_img)
     base64_string = processed_image_base64.decode('ascii')
     return base64_string

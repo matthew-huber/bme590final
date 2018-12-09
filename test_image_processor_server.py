@@ -7,6 +7,7 @@ import matplotlib.image as mpimg
 import json
 from datetime import datetime
 from ImageProcessor import *
+import skimage as ski
 
 
 @pytest.mark.parametrize("dict, is_valid", [
@@ -35,45 +36,14 @@ def test_getImageCharacteristics(img, height, width):
 
 
 @pytest.mark.parametrize("img, base64_string", [
-    (np.array([1, 2, 3]), 'AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAA'),
-    (np.array([1, 2, 2, 5, 6]), "AQAAAAAAAAACAAAAAAAAAAIAAAAA"
-                                "AAAABQAAAAAAAAAGAAAAAAAAAA=="),
-    (np.array([np.array([1, 2, 2, 5, 6, 8, 10]), np.array([1, 2,
-                                                           2, 5, 6,
-                                                           8, 10])]), "AQAAA"
-                                                                      "AAAAA"
-                                                                      "ACAAA"
-                                                                      "AAAA"
-                                                                      "AAAIA"
-                                                                      "AAAA"
-                                                                      "AAA"
-                                                                      "ABQAAA"
-                                                                      "AAAA"
-                                                                      "AAGA"
-                                                                      "AAAAAA"
-                                                                      "AAAgAAA"
-                                                                      "AAAA"
-                                                                      "AACgAA"
-                                                                      "AAAAAAA"
-                                                                      "BAAAAA"
-                                                                      "AAAA"
-                                                                      "AIAAA"
-                                                                      "AAAA"
-                                                                      "AAAgA"
-                                                                      "AA"
-                                                                      "AAAAA"
-                                                                      "AFAA"
-                                                                      "AAAA"
-                                                                      "AAAAY"
-                                                                      "AAAAA"
-                                                                      "AAAACA"
-                                                                      "AAAAA"
-                                                                      "AAAAK"
-                                                                      "AAAAA"
-                                                                      "AAA"
-                                                                      "AA==")
+    (b'010101010111', "MDEwMTAxMDEwMTEx"),
+    (b'0101', "MDEwMQ=="),
+    (b'0101110', "MDEwMTExMA==")
 ])
 def test_encodeImage(img, base64_string):
+    # bytes_img = img.tobytes()
+    # processed_img_base64 = base64.b64encode(bytes_img)
+    # base64_string = processed_img_base64.decode('ascii')
     assert encodeImage(img) == base64_string
 
 
@@ -166,25 +136,18 @@ def test_addimagestodatabase(images, filenames, username, pro_times, pro_type,
     assert image_list == image_list1
 
 
-pro = ImageProcessor()
-
-
-@pytest.mark.parametrize("img, proc_type, IP, output", [
-    (np.array([1, 2, 3]), "Histogram Equalization", pro,
+@pytest.mark.parametrize("img, proc_type, output", [
+    (np.array([1, 2, 3]), "Histogram Equalization",
      np.array([0, 127, 255])),
-    (np.array([1, 2, 2, 5, 6]), "Contrast Stretching", pro,
-     np.array([0, 1844674407370955264, 1844674407370955264,
-               7378697629483821056, -9223372036854775808])),
-    (np.array([np.array([1, 2, 2, 5, 6, 8, 10]), np.array([1, 2,
-                                                           2, 5, 6,
-                                                           8, 10])]),
-     "Log Compression", pro,
-     np.array([np.array([0, 0, 0, 0, 0, 0, 0]), np.array([0, 0,
-                                                          0, 0, 0,
-                                                          0, 0])])),
-    (np.array([1, 2, 3]), "Reverse Video", pro, np.array([-2, -3, -4])),
+
+    (np.array([1, 2, 2, 5, 6]), "Contrast Stretching",
+     ski.exposure.rescale_intensity(np.array([1, 2, 2, 5, 6]))),
+
+    (np.array([np.array([1, 2, 2, 5, 6, 8]), np.array([1, 2, 2, 5, 6, 8])]),
+     "Log Compression",
+     ski.exposure.adjust_log(np.array([np.array([1, 2, 2, 5, 6, 8]),
+                                       np.array([1, 2, 2, 5, 6, 8])]))),
+    (np.array([1, 2, 3]), "Reverse Video", np.array([-2, -3, -4])),
 ])
-def test_process(img, proc_type, IP, output):
-    print(process(img, proc_type, IP))
-    a = process(img, proc_type, IP) == output
-    assert a.all()
+def test_process(img, proc_type, output, IP):
+    assert np.array_equal(process(img, proc_type, IP), output)
