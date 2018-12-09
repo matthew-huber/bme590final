@@ -59,7 +59,7 @@ def test_encodeImage(img):
     # (image_bytes, mpimg.imread("TestImages/grayscale.jpeg", format='JPG')),
     # (image_bytes1, mpimg.imread("TestImages/GS_3D.jpg", format='JPG')),
     # (image_bytes2, mpimg.imread("TestImages/color_img.jpg", format='JPG')),
-## ])
+# ])
 # def test_decodeImage(img, base64_string):
     # a = decodeImage(img) == base64_string
     # assert a.all()
@@ -150,11 +150,4 @@ def test_addimagestodatabase(images, filenames, username, pro_times, pro_type,
     (np.array([1, 2, 3]), "Reverse Video", np.array([-2, -3, -4])),
 ])
 def test_process(img, proc_type, output, IP):
-    # print(process(img, proc_type, IP))
-    print(proc_type)
-    print(img, proc_type, IP)
-    print("output")
-    print(output)
-    # print(process(img, proc_type, IP) == output)
     assert np.array_equal(process(img, proc_type, IP), output)
-    # assert a.all()
