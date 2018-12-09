@@ -475,13 +475,7 @@ class App(QTabWidget):
         self.proc_image.setMinimumSize(1, 1)
         self.proc_image.show()
 
-    def compress_multidimm_image(self, input_image):
 
-        temp = np.zeros(input_image.shape, dtype='uint8')
-        temp = np.copy(input_image[:, :, 0])
-        input_image[:, :, 0] = input_image[:, :, 2]
-        input_image[:, :, 2] = temp
-        return input_image
 
     def getQImg(self, input_image):
         image_shape = input_image.shape
@@ -566,36 +560,6 @@ class App(QTabWidget):
         self.multiple_images = False
         self.zip_download.hide()
 
-    def makeDatabaseFileNames(self, fn, username):
-        filenames = self.get_filenames_remove_full_path(fn)
-        filenames = self.get_filenames_add_username(filenames, username)
-        return filenames
-
-    def get_filenames_remove_full_path(self, files):
-        """
-        :param files: list of files with paths
-        :return:
-        """
-        filenames = []
-        for i in range(len(files)):
-            filename = files[i]
-            filename = filename.split("/")[-1]
-            filenames.append(filename)
-        return filenames
-
-    def get_filenames_add_username(self, files, username):
-        """
-        :param files: List of file names
-        :param username:  Username to append
-        :return:
-        """
-
-        filenames = []
-        for file in files:
-            filenames.append(file + username)
-
-        return filenames
-
     def extractAndAppendZipFiles(self, zfile):
         z = zipfile.ZipFile(zfile, "r")
 
@@ -675,11 +639,17 @@ def decodeImage(byte_img):
 
 
 def validateFiles(file_list):
+    invalid_files = []
+
     for inx in range(len(file_list)):
         file = file_list[inx]
         is_valid_file = validateImageHeader(file)
         if not is_valid_file:
-            file_list.pop(inx)
+            invalid_files.append(file)
+
+    for invalidFile in invalid_files:
+        file_list.remove(invalidFile)
+        
     return file_list
 
 
@@ -691,6 +661,45 @@ def validateImageHeader(file_path):
     else:
         return True
 
+
+def compress_multidimm_image(input_image):
+
+    temp = np.zeros(input_image.shape, dtype='uint8')
+    temp = np.copy(input_image[:, :, 0])
+    input_image[:, :, 0] = input_image[:, :, 2]
+    input_image[:, :, 2] = temp
+    return input_image
+
+
+def makeDatabaseFileNames(fn, username):
+    filenames = get_filenames_remove_full_path(fn)
+    filenames = get_filenames_add_username(filenames, username)
+    return filenames
+
+def get_filenames_remove_full_path(files):
+    """
+    :param files: list of files with paths
+    :return:
+    """
+    filenames = []
+    for i in range(len(files)):
+        filename = files[i]
+        filename = filename.split("/")[-1]
+        filenames.append(filename)
+    return filenames
+
+def get_filenames_add_username(files, username):
+    """
+    :param files: List of file names
+    :param username:  Username to append
+    :return:
+    """
+
+    filenames = []
+    for file in files:
+        filenames.append(file + username)
+
+    return filenames
 
 if __name__ == '__main__':
     main()

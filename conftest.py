@@ -7,9 +7,3 @@ from image_processor_gui import App
 def IP():
     IP = ImageProcessor()
     return IP
-
-
-@pytest.fixture
-def GUI():
-    GUI = App()
-    return GUI
