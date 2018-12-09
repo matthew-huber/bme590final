@@ -133,27 +133,24 @@ def test_addimagestodatabase(images, filenames, username, pro_times, pro_type,
     for image in DB_Image_Meta.objects.raw({"user": "Mike"}):
         image_list.append(image.img_file_path)
     assert image_list == image_list1
+    
 
-
-pro = ImageProcessor()
-
-
-@pytest.mark.parametrize("img, proc_type, IP, output", [
-    (np.array([1, 2, 3]), "Histogram Equalization", pro,
+@pytest.mark.parametrize("img, proc_type, output", [
+    (np.array([1, 2, 3]), "Histogram Equalization",
      np.array([0, 127, 255])),
-    (np.array([1, 2, 2, 5, 6]), "Contrast Stretching", pro,
+    (np.array([1, 2, 2, 5, 6]), "Contrast Stretching",
      np.array([0, 1844674407370955264, 1844674407370955264,
                7378697629483821056, -9223372036854775808])),
     (np.array([np.array([1, 2, 2, 5, 6, 8, 10]), np.array([1, 2,
                                                            2, 5, 6,
                                                            8, 10])]),
-     "Log Compression", pro,
+     "Log Compression",
      np.array([np.array([0, 0, 0, 0, 0, 0, 0]), np.array([0, 0,
                                                           0, 0, 0,
                                                           0, 0])])),
-    (np.array([1, 2, 3]), "Reverse Video", pro, np.array([-2, -3, -4])),
+    (np.array([1, 2, 3]), "Reverse Video", np.array([-2, -3, -4])),
 ])
-def test_process(img, proc_type, IP, output):
+def test_process(img, proc_type, output, IP):
     print(process(img, proc_type, IP))
     a = process(img, proc_type, IP) == output
     assert a.all()
