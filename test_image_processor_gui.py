@@ -7,7 +7,7 @@ from image_processor_gui import *
     (np.array([np.array([np.array([1, 2, 3])])]),
      np.array([np.array([np.array([3, 2, 1])])])),
 
-            (np.array([np.array([np.array([3, 2, 1])])]),
+    (np.array([np.array([np.array([3, 2, 1])])]),
      np.array([np.array([np.array([1, 2, 3])])])),
 
     (np.array([np.array([np.array([10, 25, 3])])]),
