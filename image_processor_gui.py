@@ -475,8 +475,6 @@ class App(QTabWidget):
         self.proc_image.setMinimumSize(1, 1)
         self.proc_image.show()
 
-
-
     def getQImg(self, input_image):
         image_shape = input_image.shape
         width = image_shape[1]
@@ -649,7 +647,7 @@ def validateFiles(file_list):
 
     for invalidFile in invalid_files:
         file_list.remove(invalidFile)
-        
+
     return file_list
 
 
@@ -676,6 +674,7 @@ def makeDatabaseFileNames(fn, username):
     filenames = get_filenames_add_username(filenames, username)
     return filenames
 
+
 def get_filenames_remove_full_path(files):
     """
     :param files: list of files with paths
@@ -687,6 +686,7 @@ def get_filenames_remove_full_path(files):
         filename = filename.split("/")[-1]
         filenames.append(filename)
     return filenames
+
 
 def get_filenames_add_username(files, username):
     """
@@ -700,6 +700,7 @@ def get_filenames_add_username(files, username):
         filenames.append(file + username)
 
     return filenames
+
 
 if __name__ == '__main__':
     main()

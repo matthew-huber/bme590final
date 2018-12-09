@@ -14,7 +14,7 @@ from image_processor_gui import *
      np.array([np.array([np.array([3, 25, 10])])])),
 ])
 def test_compress_multidimm_image(input_img, expected_img):
-    assert(np.array_equal(compress_multidimm_image(input_img),expected_img))
+    assert(np.array_equal(compress_multidimm_image(input_img), expected_img))
 
 
 @pytest.mark.parametrize("filenames, username, expected", [
