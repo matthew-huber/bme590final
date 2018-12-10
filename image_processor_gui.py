@@ -464,7 +464,7 @@ class App(QTabWidget):
         input_image.setflags(write=1)
 
         if input_image.ndim >= 3:
-            input_image = self.compress_multidimm_image(input_image)
+            input_image = compress_multidimm_image(input_image)
 
         pixmap_image = self.get_pixelmap_image(input_image)
 
@@ -513,7 +513,7 @@ class App(QTabWidget):
         else:
             self.disable_process_all_button()
 
-        DB_filenames = self.makeDatabaseFileNames(fn, self.username)
+        DB_filenames = makeDatabaseFileNames(fn, self.username)
 
         for x in range(len(fn)):
             if zipfile.is_zipfile(fn[x]):
