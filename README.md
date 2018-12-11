@@ -1,6 +1,8 @@
 # BME 590 Final Project: Image Processor
 
-
+## DEMO VIDEO
+The following link will take you to a video demoing the functional features of our image processor.
+[![Image processor demo video](http://img.youtube.com/vi/M5GgaO1uSFc/0.jpg)](https://www.youtube.com/watch?v=M5GgaO1uSFc& "Image Processor Demo")
 [![Build Status](https://travis-ci.org/matthew-huber/bme590final.svg?branch=master)](https://travis-ci.org/matthew-huber/bme590final)
 
 ## SETUP
