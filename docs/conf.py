@@ -129,7 +129,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'BME590ImageProcessor.tex', 'BME 590 Image Processor Documentation',
+    (master_doc, 'BME590ImageProcessor.tex',
+     'BME 590 Image Processor Documentation',
      'Michael Postiglione, Matthew Huber, Katelyn Offerdahl', 'manual'),
 ]
 
@@ -139,7 +140,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'bme590imageprocessor', 'BME 590 Image Processor Documentation',
+    (master_doc, 'bme590imageprocessor',
+     'BME 590 Image Processor Documentation',
      [author], 1)
 ]
 
@@ -150,7 +152,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'BME590ImageProcessor', 'BME 590 Image Processor Documentation',
+    (master_doc, 'BME590ImageProcessor',
+     'BME 590 Image Processor Documentation',
      author, 'BME590ImageProcessor', 'One line description of project.',
      'Miscellaneous'),
 ]
