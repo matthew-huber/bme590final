@@ -85,6 +85,7 @@ class App(QTabWidget):
         self.tab3UI()
         self.tab4UI()
 
+        # Characteristics for entire window
         self.left = 100
         self.top = 100
         self.width = 640
@@ -105,7 +106,6 @@ class App(QTabWidget):
         line_one_layout.addWidget(QLabel("Or select from existing users:"))
         line_one_layout.addWidget(self.user_select)
         username_layout.addRow("Enter Username", line_one_layout)
-
         layout.addRow(username_layout)
 
         enter_button = QHBoxLayout()
