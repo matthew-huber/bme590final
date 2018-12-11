@@ -1,9 +1,12 @@
 # BME 590 Final Project: Image Processor
 
+
+[![Build Status](https://travis-ci.org/matthew-huber/bme590final.svg?branch=master)](https://travis-ci.org/matthew-huber/bme590final)
+
+
 ## DEMO VIDEO
 The following link will take you to a video demoing the functional features of our image processor.
 [![Image processor demo video](http://img.youtube.com/vi/M5GgaO1uSFc/0.jpg)](https://www.youtube.com/watch?v=M5GgaO1uSFc& "Image Processor Demo")
-[![Build Status](https://travis-ci.org/matthew-huber/bme590final.svg?branch=master)](https://travis-ci.org/matthew-huber/bme590final)
 
 ## SETUP
 The Image processor can be run on your local machine by running the command `python image_processor_gui`. This is the main file that acts as the interface through which the user can use the tool. The file `image_processor_gui` is supported by/needs the files `image_processor`, `img_db`, `image_processor_server`, and the included modules to run. There are several files in this repository that test the program to make sure everything is working as expected, but are not required for the basic operation of the image processor. 
