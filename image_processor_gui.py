@@ -22,6 +22,12 @@ from matplotlib import pyplot as plt
 
 class App(QTabWidget):
     def __init__(self, parent=None):
+        """
+        Initializes GUI with the variables accessible to all functions.
+        Calls functions to initialize each tab of the GUI
+
+        :param parent: GUI is highest in hierarchy, so the parent is None
+        """
         super(App, self).__init__(parent)
 
         self.multiple_images = False
@@ -87,6 +93,11 @@ class App(QTabWidget):
         self.setWindowTitle('Image Processor Control')
 
     def tab1UI(self):
+        """
+        Defines the layout of the username tab.
+
+        :return: None
+        """
         layout = QFormLayout()
         line_one_layout = QHBoxLayout()
         username_layout = QFormLayout()
@@ -108,7 +119,11 @@ class App(QTabWidget):
         self.tab1.setLayout(layout)
 
     def tab2UI(self):
+        """
+        Defines layout of process image tab, and sets initial widget states
 
+        :return: None
+        """
         tab2layout = QGridLayout()
 
         open_button = QPushButton('Open image', self)
@@ -180,6 +195,11 @@ class App(QTabWidget):
         self.tab2.setLayout(tab2layout)
 
     def tab3UI(self):
+        """
+        Defines layout of manage images tab, and sets initial widget states
+
+        :return: None
+        """
         layout = QHBoxLayout()
         layout.addWidget(self.users_images)
 
@@ -196,6 +216,11 @@ class App(QTabWidget):
         self.tab3.setLayout(layout)
 
     def tab4UI(self):
+        """
+        Defines layout of histogram tab, and sets initial widget states
+
+        :return: None
+        """
         histogram_layout = QVBoxLayout()
         histogram_layout.addWidget(self.histogram_fig)
         self.return_to_process.clicked.connect(self.switch_tab_2)
@@ -203,10 +228,21 @@ class App(QTabWidget):
         self.tab4.setLayout(histogram_layout)
 
     def switch_tab_2(self):
+        """
+        Function that will switch the current tab to the process image tab
+        The histogram tab gets disabled when this is done
+
+        :return: None
+        """
         self.setCurrentIndex(1)
         self.setTabEnabled(3, False)
 
     def make_histogram_plots(self):
+        """
+        Converts histogram data to a matplotlib plot, and saves it
+
+        :return: None
+        """
         self.setTabEnabled(3, True)
         num_cols = len(OG_HISTOGRAMS[0])
         fig, axarr = plt.subplots(num_cols, 2)
@@ -239,6 +275,11 @@ class App(QTabWidget):
         self.setCurrentIndex(3)
 
     def display_histogram(self):
+        """
+        Takes a saved matplotlib plot and displays it on the histogram tab
+
+        :return: None
+        """
         pixmap_image = QtGui.QPixmap('matplot.jpg')
         self.histogram_fig.setPixmap(pixmap_image)
         self.histogram_fig.setAlignment(QtCore.Qt.AlignCenter)
@@ -247,6 +288,12 @@ class App(QTabWidget):
         os.remove('matplot.jpg')
 
     def changed_tab(self, i):
+        """
+        called when tabs are changed to generate different display outcomes
+
+        :param i: The tab that has been switched to
+        :return: None
+        """
         if i != 3:
             self.setTabEnabled(3, False)
         if i == 0:
@@ -259,6 +306,11 @@ class App(QTabWidget):
             self.update_image_list()
 
     def update_image_list(self):
+        """
+        Adds images associated with current user to the manage images tab
+
+        :return: None
+        """
         self.users_images.clear()
         request_url = "http://152.3.53.153:5000/get_images/" + self.username
         get_images = requests.get(request_url)
@@ -270,6 +322,11 @@ class App(QTabWidget):
         self.remove_image.setEnabled(False)
 
     def delete_image(self):
+        """
+        Deletes a user's image from the database, and updates the image list
+
+        :return: None
+        """
         filename = self.users_images.currentItem().text()
         url_end = filename + self.username
         request_url = "http://152.3.53.153:5000/delete_image/" + url_end
@@ -283,6 +340,12 @@ class App(QTabWidget):
         self.processing_time.setText("")
 
     def load_image_data(self, current):
+        """
+        Loads the metadata for the currently selected image
+
+        :param current: the currently selected file
+        :return: None
+        """
         self.remove_image.setEnabled(True)
         filename = current.text()
         url_end = filename + self.username
@@ -298,7 +361,10 @@ class App(QTabWidget):
                                      " seconds")
 
     def download_image(self):
-        """Download image
+        """
+        Download the currently displayed image with the selected filetype
+
+        :return: the filename of the downloaded image and its processing type
         """
         filetype = self.download_box.currentText()
         filename = fn[0]
@@ -314,7 +380,10 @@ class App(QTabWidget):
         return filename, processing_type
 
     def download_all_images(self):
-        """Download all images
+        """
+        Iterate through all images and download them all
+
+        :return: None
         """
         filenames = []
         nfiles = 0
@@ -328,6 +397,13 @@ class App(QTabWidget):
             self.zip_downloaded_images(filenames, folder_name)
 
     def zip_downloaded_images(self, filenames, folder_name):
+        """
+        Zip together the downloaded images
+
+        :param filenames: list of filenames of images to zip
+        :param folder_name: the name of the folder to zip the images into
+        :return: None
+        """
         zip_folder = zipfile.ZipFile(folder_name, "w")
         for file in filenames:
             zip_folder.write(file, compress_type=zipfile.ZIP_DEFLATED)
@@ -335,11 +411,14 @@ class App(QTabWidget):
             os.remove(file)
 
     def orig_next_image(self):
-        """next image
+        """
+        Click through to the next image in the image list
+
+        :return: None
         """
         first_image = fn.pop(0)
         fn.append(first_image)
-        self.insert_orig_image(fn)
+        self.insert_orig_image()
         if self.multiple_images:
             first = OG_HISTOGRAMS.pop(0)
             OG_HISTOGRAMS.append(first)
@@ -350,11 +429,14 @@ class App(QTabWidget):
             PROC_HISTOGRAMS.append(first)
 
     def orig_prev_image(self):
-        """prev image
+        """
+        Click back to the previous image in the image list
+
+        :return: None
         """
         last_image = fn.pop(-1)
         fn.insert(0, last_image)
-        self.insert_orig_image(fn)
+        self.insert_orig_image()
         if self.multiple_images:
             last = OG_HISTOGRAMS.pop(-1)
             OG_HISTOGRAMS.insert(0, last)
@@ -365,6 +447,11 @@ class App(QTabWidget):
             PROC_HISTOGRAMS.insert(0, last)
 
     def update_username(self):
+        """
+        Update the system username with the selected or entered
+
+        :return: None
+        """
         self.username = self.entered_username.text()
         dropdown_text = self.user_select.currentText()
 
@@ -379,11 +466,20 @@ class App(QTabWidget):
         else:
             self.user_select_error.show()
 
-    @pyqtSlot()
     def file_select_button(self):
+        """
+        Call function to open file dialog
+
+        :return: None
+        """
         self.openFileNamesDialog()
 
     def openFileNamesDialog(self):
+        """
+        Open a file dialog for selecting an image to view
+
+        :return: None
+        """
         global TIMESTAMPS
         TIMESTAMPS = [0]
         global fn
@@ -446,9 +542,14 @@ class App(QTabWidget):
                 return
             global PROCESSED_IMAGE
             PROCESSED_IMAGE = []
-            self.insert_orig_image(fn)
+            self.insert_orig_image()
 
-    def insert_orig_image(self, fn):
+    def insert_orig_image(self):
+        """
+        Inserts the first image in the filename list as the original image
+
+        :return: None
+        """
 
         pixmap_image = QtGui.QPixmap(fn[0])
         pixmap_image_scaled = pixmap_image.scaledToHeight(240)
@@ -459,6 +560,12 @@ class App(QTabWidget):
         self.orig_image.show()
 
     def insert_processed_image(self, processed_images):
+        """
+        Displays the processed image in the GUI
+
+        :param processed_images: image to display
+        :return: None
+        """
         byte_image = base64.b64decode(processed_images)
         input_image = decodeImage(byte_image)
         input_image.setflags(write=1)
@@ -476,6 +583,12 @@ class App(QTabWidget):
         self.proc_image.show()
 
     def getQImg(self, input_image):
+        """
+        creates the qImage widget for an image
+
+        :param input_image: the image to create a qImage of
+        :return: None
+        """
         image_shape = input_image.shape
         width = image_shape[1]
         height = image_shape[0]
@@ -493,25 +606,41 @@ class App(QTabWidget):
         return qImg
 
     def get_pixelmap_image(self, input_image):
+        """
+        Collects a qImage and converts it to a pixelmap
+
+        :param input_image: qImage to convert
+        :return: pixelmap of image
+        """
         qImg = self.getQImg(input_image)
         pixmap = QtGui.QPixmap.fromImage(qImg)
         pixmap_image = QtGui.QPixmap(pixmap)
         return pixmap_image
 
     def process_button(self):
+        """
+        Changes the states of buttons and calls function to process images
+
+        :return: None
+        """
         self.download_button.setEnabled(True)
         self.view_image_hist.setEnabled(True)
         self.process_server()
 
     def process_server(self):
+        """
+        Unzips files, decodes to base64, sends images to server for processing
+
+        :return: None
+        """
         images_base64 = []
         processing_type = self.procbox.currentText()
         TIMESTAMPS[0] = (str(datetime.now()))
 
         if len(fn) > 1:
-            self.enable_process_all_button()
+            self.enable_download_all_button()
         else:
-            self.disable_process_all_button()
+            self.disable_download_all_button()
 
         DB_filenames = makeDatabaseFileNames(fn, self.username)
 
@@ -548,17 +677,33 @@ class App(QTabWidget):
 
         self.insert_processed_image(PROCESSED_IMAGE[0])
 
-    def enable_process_all_button(self):
+    def enable_download_all_button(self):
+        """
+        Makes active the download all button since multiple images uploaded
+
+        :return: None
+        """
         self.download_all_button.setEnabled(True)
         self.multiple_images = True
         self.zip_download.show()
 
-    def disable_process_all_button(self):
+    def disable_download_all_button(self):
+        """
+        Disables download all button since multiple images are not uploaded
+
+        :return: None
+        """
         self.download_all_button.setEnabled(False)
         self.multiple_images = False
         self.zip_download.hide()
 
     def extractAndAppendZipFiles(self, zfile):
+        """
+        extracts files for unzipping and adds them to file list
+
+        :param zfile: file to unzip
+        :return: None
+        """
         z = zipfile.ZipFile(zfile, "r")
 
         for filename in z.namelist():
@@ -567,11 +712,23 @@ class App(QTabWidget):
             z.extractall(os.path.dirname(os.path.realpath(__file__)))
 
     def get_image_bytes(self, filename):
+        """
+        Get the number of bytes associated with an image
+
+        :param filename: name of file to find bytes of
+        :return: The number of bytes in file
+        """
         with open(filename, "rb") as image_file:
             image_bytes = image_file.read()
         return image_bytes
 
     def get_base64_string(self, filename):
+        """
+        Get the base64 encoding of a file
+
+        :param filename: name of file to get encoding of
+        :return: base64 encoding
+        """
         image_bytes = self.get_image_bytes(filename)
         image_base64 = base64.b64encode(image_bytes)
         base64_string = image_base64.decode('ascii')
@@ -579,6 +736,11 @@ class App(QTabWidget):
 
 
 def main():
+    """
+    Creates GUI window and makes it active until window is closed
+
+    :return: None
+    """
     app = QApplication(sys.argv)
     ex = App()
     ex.show()
@@ -586,6 +748,12 @@ def main():
 
 
 def unpack_server_info(content1):
+    """
+    Extracts contents of server output into global variables accessible by GUI
+
+    :param content1: the contents of what is returned by the server
+    :return: None
+    """
     global ORIGINAL_IMAGES
     global TIMESTAMPS
     global OG_HEIGHT
@@ -620,13 +788,13 @@ def unpack_server_info(content1):
 
     OG_HISTOGRAMS = json.loads(OG_HISTOGRAMS)
     PROC_HISTOGRAMS = json.loads(PROC_HISTOGRAMS)
-    return "woo"
 
 
 def decodeImage(byte_img):
     """Decodes a byte_image to a numpy array
-    :param byte_img:
-    :return:
+
+    :param byte_img: image to decode
+    :return: the decoded image
     """
 
     image_buf = io.BytesIO(byte_img)
@@ -637,6 +805,12 @@ def decodeImage(byte_img):
 
 
 def validateFiles(file_list):
+    """
+    Search through list of files and remove those that are invalid
+
+    :param file_list: List of files to validate
+    :return: list of files containing only those that are valid
+    """
     invalid_files = []
 
     for inx in range(len(file_list)):
@@ -652,6 +826,12 @@ def validateFiles(file_list):
 
 
 def validateImageHeader(file_path):
+    """
+    Check whether the file header is none
+
+    :param file_path: File to validate header of
+    :return: boolean indicating whether header is none or not
+    """
     header = imghdr.what(file_path)
 
     if header is None:
@@ -661,7 +841,12 @@ def validateImageHeader(file_path):
 
 
 def compress_multidimm_image(input_image):
+    """
+    compresses a multidimensional image
 
+    :param input_image: image data to compress
+    :return: compressed image
+    """
     temp = np.zeros(input_image.shape, dtype='uint8')
     temp = np.copy(input_image[:, :, 0])
     input_image[:, :, 0] = input_image[:, :, 2]
@@ -670,6 +855,13 @@ def compress_multidimm_image(input_image):
 
 
 def makeDatabaseFileNames(fn, username):
+    """
+    Convert filenames into primary image ID for database
+
+    :param fn: list of image filenames
+    :param username: username string for current user
+    :return: the filenames without the full path and with username appended
+    """
     filenames = get_filenames_remove_full_path(fn)
     filenames = get_filenames_add_username(filenames, username)
     return filenames
@@ -677,8 +869,10 @@ def makeDatabaseFileNames(fn, username):
 
 def get_filenames_remove_full_path(files):
     """
+    Removes the path from each file in a list of files
+
     :param files: list of files with paths
-    :return:
+    :return: list of files with path removed
     """
     filenames = []
     for i in range(len(files)):
@@ -690,9 +884,11 @@ def get_filenames_remove_full_path(files):
 
 def get_filenames_add_username(files, username):
     """
+    Adds the username to the end of a file name
+
     :param files: List of file names
     :param username:  Username to append
-    :return:
+    :return: filename with appended username
     """
 
     filenames = []
