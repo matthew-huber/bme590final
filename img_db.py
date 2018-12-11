@@ -13,6 +13,11 @@ class DB_Image_Meta(MongoModel):
         processing_times (list): List of floats containing processing times
                                  for each processing type
         processing_types (list): List of chars with processing types performed
+        original_height (int): The original height of image in pixels
+        original_width (int): The original width of the image in pixels
+        processed_height (list):  List image heights after processing
+        processed_wdith (list): List of image widths after processing
+        upload_timestamp (DateTime): Time when uploaded
     """
     img_file_path = fields.CharField(primary_key=True)
     user = fields.CharField()
