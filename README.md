@@ -3,10 +3,10 @@
 
 [![Build Status](https://travis-ci.org/matthew-huber/bme590final.svg?branch=master)](https://travis-ci.org/matthew-huber/bme590final)
 
-##SETUP
+## SETUP
 The Image processor can be run on your local machine by running the command `python image_processor_gui`. This is the main file that acts as the interface through which the user can use the tool. The file `image_processor_gui` is supported by/needs the files `image_processor`, `img_db`, `image_processor_server`, and the included modules to run. There are several files in this repository that test the program to make sure everything is working as expected, but are not required for the basic operation of the image processor. 
 To use this project, you can simply clone the repository, install the requirements specified in requirements.txt in a virtual environment, and simply run `python image_processor_gui.py` from the command line.
-##HOW IT WORKS
+## HOW IT WORKS
 The image processor starts with the graphical user interface on the **Specify User** tab. Here the user inputs their username or selects an existing username then hits enter to advance to the **Process Image** tab. 
 
 In the **Process Image** tab the user can open files on their computer to be processed. This done by clicking the open file button. When the button is clicked a file selector appears which has filters to limit the files that can be opened to only files with image extensions. 
