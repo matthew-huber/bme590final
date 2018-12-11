@@ -79,7 +79,7 @@ class App(QTabWidget):
         self.tab3UI()
         self.tab4UI()
 
-        #Characteristics for entire window
+        # Characteristics for entire window
         self.left = 100
         self.top = 100
         self.width = 640
